@@ -1,0 +1,70 @@
+{
+	"groups": [
+		{
+			"keys": "bg_png,egret_icon_png,login_png,description_json,create_game_png,add_game_png,confirm_png,cancel_png,input_png,ready_png",
+			"name": "preload"
+		}
+	],
+	"resources": [
+		{
+			"name": "bg_png",
+			"type": "image",
+			"url": "assets/bg.png"
+		},
+		{
+			"name": "egret_icon_png",
+			"type": "image",
+			"url": "assets/egret_icon.png"
+		},
+		{
+			"name": "login_png",
+			"type": "image",
+			"url": "assets/login.png"
+		},
+		{
+			"name": "description_json",
+			"type": "json",
+			"url": "config/description.json"
+		},
+		{
+			"name": "create_game_png",
+			"type": "image",
+			"url": "assets/create_game.png"
+		},
+		{
+			"name": "avartar_frame_png",
+			"type": "image",
+			"url": "assets/avartar_frame.png"
+		},
+		{
+			"name": "confirm_png",
+			"type": "image",
+			"url": "assets/confirm.png"
+		},
+		{
+			"name": "cancel_png",
+			"type": "image",
+			"url": "assets/cancel.png"
+		},
+		{
+			"name": "input_png",
+			"type": "image",
+			"url": "assets/input.png"
+		},
+		{
+			"name": "ready_png",
+			"type": "image",
+			"url": "assets/ready.png"
+		},
+		{
+			"name": "start_png",
+			"type": "image",
+			"url": "assets/start.png"
+		},
+		{
+			"name": "add_game_png",
+			"type": "image",
+			"url": "assets/add_game.png"
+		}
+	]
+}
