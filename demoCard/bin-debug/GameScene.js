@@ -49,7 +49,11 @@ var GameScene = (function (_super) {
         var _this = _super.call(this) || this;
         _this.cardGroups = new Array(4);
         _this.avartars = new Array(4);
+        _this.readyIcons = new Array(4);
+        _this.userNameLabels = new Array(4);
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
+        Router.registerHandler(Router.cmd.NotifyRoomMemChange, _this.memberChangeHandler, _this);
+        Router.registerHandler(Router.cmd.PlayerReady, _this.readyHandler, _this);
         return _this;
     }
     GameScene.prototype.onAddToStage = function (event) {
@@ -91,8 +95,11 @@ var GameScene = (function (_super) {
         this.readyButton.height = 60;
         this.readyButton.horizontalCenter = 0;
         this.readyButton.verticalCenter = 160;
+        this.readyButton.addEventListener("touchTap", this.readyButtonHanler, this);
         this.addChild(this.readyButton);
         this.addAvatars();
+        this.addReadyIcons();
+        this.updateRoomMemberInfo();
     };
     GameScene.prototype.addAvatars = function () {
         var i = 0;
@@ -102,12 +109,11 @@ var GameScene = (function (_super) {
             var avartar = new eui.Image();
             avartar.width = width;
             avartar.height = height;
+            avartar.visible = false;
             this.avartars[i] = avartar;
         }
         // 0 代表自己 1 下家， 2 ...
         // 布局
-        var stageW = this.stage.width;
-        var stageH = this.stage.height;
         this.avartars[0].verticalCenter = 250;
         this.avartars[0].horizontalCenter = 0;
         this.avartars[1].verticalCenter = 0;
@@ -118,8 +124,86 @@ var GameScene = (function (_super) {
         this.avartars[3].horizontalCenter = -450;
         for (i = 0; i < 4; ++i) {
             this.addChild(this.avartars[i]);
-            this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", i);
+            if (i == 0) {
+                this.avartars[i].visible = true;
+                this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", i);
+            }
         }
+    };
+    GameScene.prototype.addReadyIcons = function () {
+        var i = 0;
+        var width = 100;
+        var height = 60;
+        for (i = 0; i < 4; ++i) {
+            var icon = new eui.Image();
+            icon.width = width;
+            icon.height = height;
+            icon.visible = false;
+            icon.source = RES.getRes("ready_icon_png");
+            icon.rotation = -(i * 90);
+            this.readyIcons[i] = icon;
+        }
+        // 布局
+        // 0 代表自己 1 下家， 2 ...
+        // 布局
+        this.readyIcons[0].verticalCenter = 250;
+        this.readyIcons[0].horizontalCenter = 50;
+        this.readyIcons[1].verticalCenter = -50;
+        this.readyIcons[1].horizontalCenter = 450;
+        this.readyIcons[2].verticalCenter = -250;
+        this.readyIcons[2].horizontalCenter = -50;
+        this.readyIcons[3].verticalCenter = 50;
+        this.readyIcons[3].horizontalCenter = -450;
+        for (i = 0; i < 4; ++i) {
+            this.addChild(this.readyIcons[i]);
+        }
+    };
+    GameScene.prototype.addNameLables = function () {
+        var i = 0;
+        for (i = 0; i < 4; ++i) {
+            var label = new eui.Label();
+            label.textColor = 0xFFFFFF;
+            label.size = 20;
+            label.visible = false;
+            this.userNameLabels[i] = label;
+        }
+        this.userNameLabels[0].verticalCenter = 300;
+        this.userNameLabels[0].horizontalCenter = 0;
+        this.userNameLabels[1].verticalCenter = 50;
+        this.userNameLabels[1].horizontalCenter = 450;
+        this.userNameLabels[2].verticalCenter = -250;
+        this.userNameLabels[2].horizontalCenter = 50;
+        this.userNameLabels[3].verticalCenter = 50;
+        this.userNameLabels[3].horizontalCenter = -450;
+        for (i = 0; i < 4; ++i) {
+            this.addChild(this.userNameLabels[i]);
+        }
+    };
+    GameScene.prototype.updateRoomMemberInfo = function () {
+        var dis = Global.Instance.roomInfo.currSeat;
+        for (var _i = 0, _a = Global.Instance.roomInfo.players; _i < _a.length; _i++) {
+            var player = _a[_i];
+            var seat = (player.seat - dis + 4) % 4;
+            this.avartars[seat].visible = true;
+            // this.loadImageForSeat(player.user_info.avatar_url, seat);
+            this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", seat);
+            if (player.is_ready) {
+                this.readyIcons[seat].visible = true;
+            }
+            this.userNameLabels[seat].text = player.user_info.nick_name;
+        }
+    };
+    GameScene.prototype.memberChangeHandler = function (data) {
+        var resp = data.response;
+        var info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            console.log(info);
+            console.log("member changed");
+            // 切换到 room 场景
+            Global.Instance.roomInfo.masterSeat = info.master_seat;
+            Global.Instance.roomInfo.players = info.players;
+        }
+        this.updateRoomMemberInfo();
     };
     GameScene.prototype.loadImageForSeat = function (url, i) {
         this.loadImage(url, this.avartars[i]);
@@ -135,6 +219,27 @@ var GameScene = (function (_super) {
             texture.bitmapData = evt.currentTarget.data;
             image.source = texture;
         }, this);
+    };
+    GameScene.prototype.readyButtonHanler = function () {
+        var cmd = Router.cmd.PlayerReady;
+        var req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+        });
+        WebUtil.default().send(req);
+    };
+    GameScene.prototype.readyHandler = function (data) {
+        var resp = data.response;
+        var info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            console.log(info);
+            this.readyButton.visible = false;
+            this.readyIcons[0].visible = true;
+        }
+        else {
+            // 准备请求失败，show tips
+            console.log("ready request error");
+        }
     };
     return GameScene;
 }(eui.Group));

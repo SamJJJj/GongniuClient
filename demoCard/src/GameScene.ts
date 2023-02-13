@@ -3,6 +3,7 @@ class GameScene extends eui.Group {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
         Router.registerHandler(Router.cmd.NotifyRoomMemChange, this.memberChangeHandler, this);
+        Router.registerHandler(Router.cmd.PlayerReady, this.readyHandler, this);
     }
 
     private async onAddToStage(event: egret.Event) {
@@ -27,6 +28,7 @@ class GameScene extends eui.Group {
     private cardGroups: eui.Group[] = new Array<eui.Group>(4);
     private avartars: eui.Image[] = new Array<eui.Image>(4);
     private readyIcons: eui.Image[] = new Array<eui.Image>(4);
+    private userNameLabels: eui.Label[] = new Array<eui.Label>(4);
 
     protected createChildren(): void {
         super.createChildren();
@@ -51,10 +53,12 @@ class GameScene extends eui.Group {
         this.readyButton.height = 60;
         this.readyButton.horizontalCenter = 0;
         this.readyButton.verticalCenter = 160;
+        this.readyButton.addEventListener("touchTap", this.readyButtonHanler, this);
 
         this.addChild(this.readyButton);
         this.addAvatars();
         this.addReadyIcons();
+        this.addNameLables();
         this.updateRoomMemberInfo();
     }
 
@@ -106,16 +110,39 @@ class GameScene extends eui.Group {
         // 0 代表自己 1 下家， 2 ...
         // 布局
         this.readyIcons[0].verticalCenter = 250;
-        this.readyIcons[0].horizontalCenter = 50;
-        this.readyIcons[1].verticalCenter = -50;
+        this.readyIcons[0].horizontalCenter = 100;
+        this.readyIcons[1].verticalCenter = -100;
         this.readyIcons[1].horizontalCenter = 450;
         this.readyIcons[2].verticalCenter = -250;
-        this.readyIcons[2].horizontalCenter = -50;
-        this.readyIcons[3].verticalCenter = 50;
+        this.readyIcons[2].horizontalCenter = -100;
+        this.readyIcons[3].verticalCenter = 100;
         this.readyIcons[3].horizontalCenter = -450;
 
         for (i = 0; i < 4; ++i) {
             this.addChild(this.readyIcons[i]);
+        }
+    }
+
+    private addNameLables() {
+        let i = 0;
+        for (i = 0; i < 4; ++i) {
+            let label = new eui.Label();
+            label.textColor = 0xFFFFFF;
+            label.size = 20;
+            label.visible = false;
+            this.userNameLabels[i] = label
+        }
+        this.userNameLabels[0].verticalCenter = 300;
+        this.userNameLabels[0].horizontalCenter = 0;
+        this.userNameLabels[1].verticalCenter = 50;
+        this.userNameLabels[1].horizontalCenter = 450;
+        this.userNameLabels[2].verticalCenter = -250;
+        this.userNameLabels[2].horizontalCenter = 50;
+        this.userNameLabels[3].verticalCenter = 50;
+        this.userNameLabels[3].horizontalCenter = -450;
+
+        for (i = 0; i < 4; ++i) {
+            this.addChild(this.userNameLabels[i]);
         }
     }
 
@@ -129,6 +156,8 @@ class GameScene extends eui.Group {
             if (player.is_ready) {
                 this.readyIcons[seat].visible = true;
             }
+            this.userNameLabels[seat].visible = true;
+            this.userNameLabels[seat].text = player.user_info.nick_name;
         }
     }
 
@@ -160,5 +189,27 @@ class GameScene extends eui.Group {
             texture.bitmapData = evt.currentTarget.data;
             image.source = texture;
         }, this)
+    }
+
+    private readyButtonHanler() {
+        let cmd = Router.cmd.PlayerReady;
+        let req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+        });
+        WebUtil.default().send(req);
+    }
+
+    private readyHandler(data) {
+        let resp = data.response;
+        let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))))
+        if (resp.code == 0) {
+            console.log(info);
+            this.readyButton.visible = false;
+            this.readyIcons[0].visible = true;
+        } else {
+            // 准备请求失败，show tips
+            console.log("ready request error");
+        }
     }
 }

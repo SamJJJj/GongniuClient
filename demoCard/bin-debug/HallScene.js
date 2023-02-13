@@ -161,7 +161,6 @@ var HallScene = (function (_super) {
             // 获取roomId;
             // 切换到 room 场景
             Global.Instance.roomInfo.roomId = info.room_id;
-            Global.Instance.roomInfo.masterId = Global.Instance.userInfo.userId;
             var game = new GameScene();
             game.width = this.stage.width;
             game.height = this.stage.height;
@@ -193,9 +192,10 @@ var HallScene = (function (_super) {
         }
         var cmd = Router.cmd.JoinRoom;
         var req = Router.genJsonRequest(cmd, {
-            "user_id": Main.userInfo.userId,
+            "user_id": Global.Instance.userInfo.userId,
             "room_id": id
         });
+        Global.Instance.roomInfo.roomId = id;
         WebUtil.default().send(req);
     };
     HallScene.prototype.joinRoomHandler = function (data) {
@@ -204,12 +204,14 @@ var HallScene = (function (_super) {
         if (resp.code == 0) {
             console.log(info);
             console.log("加入成功");
-            // 获取roomId;
             // 切换到 room 场景
-            // let game = new GameScene();
-            // game.width = this.stage.width;
-            // game.height = this.stage.height;
-            // SceneManager.Instance.changeScene(game);
+            var game = new GameScene();
+            game.width = this.stage.width;
+            game.height = this.stage.height;
+            Global.Instance.roomInfo.currSeat = info.current_seat;
+            Global.Instance.roomInfo.masterSeat = info.master_seat;
+            Global.Instance.roomInfo.players = info.players;
+            SceneManager.Instance.changeScene(game);
         }
         else {
             console.log("创建房间失败");

@@ -3,10 +3,7 @@ var __reflect = (this && this.__reflect) || function (p, c, t) {
 };
 var Global = (function () {
     function Global() {
-        this.roomInfo = {
-            roomId: "",
-            masterId: "",
-        };
+        this.roomInfo = { roomId: '0', currSeat: 0, masterSeat: 0, players: [] };
     }
     Object.defineProperty(Global, "Instance", {
         get: function () {

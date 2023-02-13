@@ -42,7 +42,7 @@ var DebugPlatform = (function () {
     DebugPlatform.prototype.getUserInfo = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, { nickName: "username", userId: "123456" }];
+                return [2 /*return*/, { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6) }];
             });
         });
     };
@@ -52,6 +52,13 @@ var DebugPlatform = (function () {
                 return [2 /*return*/];
             });
         });
+    };
+    DebugPlatform.prototype.randomString = function (length) {
+        var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var result = '';
+        for (var i = length; i > 0; --i)
+            result += str[Math.floor(Math.random() * str.length)];
+        return result;
     };
     return DebugPlatform;
 }());
