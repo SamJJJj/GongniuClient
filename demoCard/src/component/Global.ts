@@ -1,3 +1,21 @@
+type UserInfo = {
+    nick_name: string;
+    avatar_url: string;
+}
+
+type PlayerInfo = {
+    user_info: UserInfo;
+    seat: number;
+    is_ready: boolean;
+}
+
+type RoomInfo = {
+    roomId: string,
+    masterSeat: number;
+    currSeat: number;
+    players: PlayerInfo[];
+}
+
 class Global {
     private static _manager: Global;
 
@@ -9,15 +27,12 @@ class Global {
     }
 
     constructor() {
-
+        this.roomInfo = { roomId: '0', currSeat: 0, masterSeat: 0, players: [] };
     }
 
     public userInfo;
 
-    public roomInfo = {
-        roomId: "",
-        masterId: "",
-    };
+    public roomInfo: RoomInfo;
 
     public setUserInfo(info) {
         console.log(info);

@@ -14,10 +14,18 @@ declare interface Platform {
 
 class DebugPlatform implements Platform {
     async getUserInfo() {
-        return { nickName: "username", userId: "123457" }
+        return { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6) }
     }
     async login() {
 
+    }
+
+    private randomString(length) {
+        var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var result = '';
+        for (var i = length; i > 0; --i)
+            result += str[Math.floor(Math.random() * str.length)];
+        return result;
     }
 }
 

@@ -2,6 +2,7 @@ class GameScene extends eui.Group {
     constructor() {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
+        Router.registerHandler(Router.cmd.NotifyRoomMemChange, this.memberChangeHandler, this);
     }
 
     private async onAddToStage(event: egret.Event) {
@@ -25,6 +26,7 @@ class GameScene extends eui.Group {
 
     private cardGroups: eui.Group[] = new Array<eui.Group>(4);
     private avartars: eui.Image[] = new Array<eui.Image>(4);
+    private readyIcons: eui.Image[] = new Array<eui.Image>(4);
 
     protected createChildren(): void {
         super.createChildren();
@@ -34,7 +36,6 @@ class GameScene extends eui.Group {
         backgroud.width = stageW;
         backgroud.height = stageH;
         this.addChild(backgroud)
-
 
         var roomIdLabel = new eui.Label();
         roomIdLabel.textColor = 0xFFFFFF;
@@ -53,6 +54,8 @@ class GameScene extends eui.Group {
 
         this.addChild(this.readyButton);
         this.addAvatars();
+        this.addReadyIcons();
+        this.updateRoomMemberInfo();
     }
 
     private addAvatars() {
@@ -62,13 +65,12 @@ class GameScene extends eui.Group {
         for (i = 0; i < 4; ++i) {
             let avartar = new eui.Image();
             avartar.width = width;
-            avartar.height = height
+            avartar.height = height;
+            avartar.visible = false;
             this.avartars[i] = avartar;
         }
         // 0 代表自己 1 下家， 2 ...
         // 布局
-        let stageW = this.stage.width;
-        let stageH = this.stage.height;
         this.avartars[0].verticalCenter = 250;
         this.avartars[0].horizontalCenter = 0;
         this.avartars[1].verticalCenter = 0;
@@ -80,9 +82,67 @@ class GameScene extends eui.Group {
 
         for (i = 0; i < 4; ++i) {
             this.addChild(this.avartars[i]);
-            // 加载其他座位的信息;
-            this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", i);
+            if (i == 0) {
+                this.avartars[i].visible = true;
+                this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", i);
+            }
         }
+    }
+
+    private addReadyIcons() {
+        let i = 0;
+        let width = 100;
+        let height = 60;
+        for (i = 0; i < 4; ++i) {
+            let icon = new eui.Image();
+            icon.width = width;
+            icon.height = height;
+            icon.visible = false;
+            icon.source = RES.getRes("ready_icon_png");
+            icon.rotation = -(i * 90);
+            this.readyIcons[i] = icon;
+        }
+        // 布局
+        // 0 代表自己 1 下家， 2 ...
+        // 布局
+        this.readyIcons[0].verticalCenter = 250;
+        this.readyIcons[0].horizontalCenter = 50;
+        this.readyIcons[1].verticalCenter = -50;
+        this.readyIcons[1].horizontalCenter = 450;
+        this.readyIcons[2].verticalCenter = -250;
+        this.readyIcons[2].horizontalCenter = -50;
+        this.readyIcons[3].verticalCenter = 50;
+        this.readyIcons[3].horizontalCenter = -450;
+
+        for (i = 0; i < 4; ++i) {
+            this.addChild(this.readyIcons[i]);
+        }
+    }
+
+    private updateRoomMemberInfo() {
+        let dis = Global.Instance.roomInfo.currSeat;
+        for (let player of Global.Instance.roomInfo.players) {
+            let seat = (player.seat - dis + 4) % 4;
+            this.avartars[seat].visible = true;
+            // this.loadImageForSeat(player.user_info.avatar_url, seat);
+            this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", seat);
+            if (player.is_ready) {
+                this.readyIcons[seat].visible = true;
+            }
+        }
+    }
+
+    private memberChangeHandler(data) {
+        let resp = data.response;
+        let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))))
+        if (resp.code == 0) {
+            console.log(info)
+            console.log("member changed");
+            // 切换到 room 场景
+            Global.Instance.roomInfo.masterSeat = info.master_seat;
+            Global.Instance.roomInfo.players = info.players;
+        }
+        this.updateRoomMemberInfo()
     }
 
     private loadImageForSeat(url, i) {

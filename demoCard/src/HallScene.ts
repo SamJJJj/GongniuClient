@@ -136,7 +136,6 @@ class HallScene extends eui.Group {
             // 获取roomId;
             // 切换到 room 场景
             Global.Instance.roomInfo.roomId = info.room_id;
-            Global.Instance.roomInfo.masterId = Global.Instance.userInfo.userId;
             let game = new GameScene();
             game.width = this.stage.width;
             game.height = this.stage.height;
@@ -169,9 +168,10 @@ class HallScene extends eui.Group {
         }
         let cmd = Router.cmd.JoinRoom;
         let req = Router.genJsonRequest(cmd, {
-            "user_id": Main.userInfo.userId,
+            "user_id": Global.Instance.userInfo.userId,
             "room_id": id
         })
+        Global.Instance.roomInfo.roomId = id;
         WebUtil.default().send(req);
     }
 
@@ -185,6 +185,9 @@ class HallScene extends eui.Group {
             let game = new GameScene();
             game.width = this.stage.width;
             game.height = this.stage.height;
+            Global.Instance.roomInfo.currSeat = info.current_seat;
+            Global.Instance.roomInfo.masterSeat = info.master_seat;
+            Global.Instance.roomInfo.players = info.players;
             SceneManager.Instance.changeScene(game);
         } else {
             console.log("创建房间失败");
