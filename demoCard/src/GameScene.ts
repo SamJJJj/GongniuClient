@@ -12,6 +12,7 @@ class GameScene extends eui.Group {
         Router.registerHandler(Router.cmd.NotifyGameStart, this.gameStart, this);
         Router.registerHandler(Router.cmd.GetHandCards, this.getCardsHandler, this);
         Router.registerHandler(Router.cmd.PlayCard, this.playCardHandler, this);
+        Router.registerHandler(Router.cmd.NotifyGamePlaying, this.gamePlaying, this);
     }
 
     private async onAddToStage(event: egret.Event) {
@@ -52,9 +53,13 @@ class GameScene extends eui.Group {
     private cardGroups: eui.Group[] = new Array<eui.Group>(4);
     private avartars: eui.Image[] = new Array<eui.Image>(4);
     private readyIcons: eui.Image[] = new Array<eui.Image>(4);
+    private playingArrows: eui.Image[] = new Array<eui.Image>(4);
     private userNameLabels: eui.Label[] = new Array<eui.Label>(4);
     private cards: Card[];
+    private tableCards: Card[] = new Array<Card>(0);
+    private tableCardGroup: TableCards;
     private selectedIdx = -1;
+    private lastPlayedCard = -1;
     private playButton: eui.Image;
     private disableButton: eui.Image;
 
@@ -88,6 +93,8 @@ class GameScene extends eui.Group {
         this.addReadyIcons();
         this.addNameLables();
         this.updateRoomMemberInfo();
+        this.addTableCardGroup();
+        this.addPlayArrows();
     }
 
     private addAvatars() {
@@ -151,6 +158,34 @@ class GameScene extends eui.Group {
         }
     }
 
+    private addPlayArrows() {
+        let i = 0;
+        let width = 40;
+        let height = 40;
+        for (i = 0; i < 4; ++i) {
+            let icon = new eui.Image();
+            icon.width = width;
+            icon.height = height;
+            icon.visible = false;
+            icon.source = RES.getRes("play_arrow");
+            icon.rotation = -(i * 90);
+            this.playingArrows[i] = icon;
+        }
+
+        this.playingArrows[0].verticalCenter = 150;
+        this.playingArrows[0].horizontalCenter = 0;
+        this.playingArrows[1].verticalCenter = 0;
+        this.playingArrows[1].horizontalCenter = 350;
+        this.playingArrows[2].verticalCenter = -150;
+        this.playingArrows[2].horizontalCenter = 0;
+        this.playingArrows[3].verticalCenter = 0;
+        this.playingArrows[3].horizontalCenter = -350;
+
+        for (i = 0; i < 4; ++i) {
+            this.addChild(this.playingArrows[i]);
+        }
+    }
+
     private addNameLables() {
         let i = 0;
         for (i = 0; i < 4; ++i) {
@@ -187,6 +222,15 @@ class GameScene extends eui.Group {
             this.userNameLabels[seat].visible = true;
             this.userNameLabels[seat].text = player.user_info.nick_name;
         }
+    }
+
+    private addTableCardGroup() {
+        this.tableCardGroup = new TableCards();
+        this.tableCardGroup.verticalCenter = 0;
+        this.tableCardGroup.horizontalCenter = 0;
+        this.tableCardGroup.width = 600;
+        this.tableCardGroup.height = 250;
+        this.addChild(this.tableCardGroup);
     }
 
     private memberChangeHandler(data) {
@@ -319,6 +363,7 @@ class GameScene extends eui.Group {
         this.playButton.left = 300;
         this.playButton.width = 80;
         this.playButton.height = 80;
+        this.playButton.visible = false;
         this.addChild(this.playButton);
         this.playButton.addEventListener("touchTap", this.playButtonHandler, this);
 
@@ -328,6 +373,7 @@ class GameScene extends eui.Group {
         this.disableButton.left = 400;
         this.disableButton.width = 80;
         this.disableButton.height = 80;
+        this.disableButton.visible = false;
         this.addChild(this.disableButton);
 
         this.cardGroups[0] = group;
@@ -339,17 +385,78 @@ class GameScene extends eui.Group {
             return
         }
         let cmd = Router.cmd.PlayCard;
+        this.lastPlayedCard = this.selectedIdx;
         let req = Router.genJsonRequest(cmd, {
             "user_id": Global.Instance.userInfo.userId,
             "room_id": Global.Instance.roomInfo.roomId,
-            "seat_no": String(Global.Instance.roomInfo.currSeat),
+            "seat": Global.Instance.roomInfo.currSeat,
             "card": this.cards[this.selectedIdx],
         })
-
+        WebUtil.default().send(req);
     }
 
     private playCardHandler(data) {
-        console.log(data);
+        let resp = data.response;
+        let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            let icon = new eui.Image();
+            icon.source = RES.getRes("play_card");
+            icon.alpha = 0.8;
+            icon.width = 40;
+            icon.height = 40;
+            icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x
+            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y
+            // 给出过的牌增加标记
+            this.cardGroups[0].addChild(icon);
+        } else {
+            // 提示失败
+            console.log("出牌失败");
+        }
     }
 
+    private gamePlaying(data) {
+        let resp = data.response;
+        let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            console.log(info);
+            let playSeat = info.curr_playing_seat;
+            let cards = info.curr_cards;
+            this.showOnGamePlaying(playSeat, cards);
+        }
+    }
+
+    private showOnGamePlaying(seat, cards) {
+        let dis = Global.Instance.roomInfo.currSeat;
+        let playSeat = (seat - dis + 4) % 4;
+        for (let i = 0; i < 4; ++i) {
+            if (i == playSeat) {
+                this.playingArrows[i].visible = true;
+            } else {
+                this.playingArrows[i].visible = false;
+            }
+        }
+        if (seat == Global.Instance.roomInfo.currSeat) {
+            this.playButton.visible = true;
+            this.disableButton.visible = true;
+        } else {
+            this.playButton.visible = false;
+            this.disableButton.visible = false;
+        }
+
+        if (cards == null) {
+            return
+        }
+
+        console.log(cards);
+        console.log((cards as Array<Card>).length);
+        console.log(this.tableCards.length);
+
+        if ((cards as Array<Card>).length > this.tableCards.length) {
+            for (let i = this.tableCards.length; i < cards.length; ++i) {
+                console.log("i: " + i)
+                this.tableCardGroup.addCard(cards[i]);
+            }
+            this.tableCards = cards;
+        }
+    }
 }

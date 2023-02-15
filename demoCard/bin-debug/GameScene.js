@@ -50,14 +50,18 @@ var GameScene = (function (_super) {
         _this.cardGroups = new Array(4);
         _this.avartars = new Array(4);
         _this.readyIcons = new Array(4);
+        _this.playingArrows = new Array(4);
         _this.userNameLabels = new Array(4);
+        _this.tableCards = new Array(0);
         _this.selectedIdx = -1;
+        _this.lastPlayedCard = -1;
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         Router.registerHandler(Router.cmd.NotifyRoomMemChange, _this.memberChangeHandler, _this);
         Router.registerHandler(Router.cmd.PlayerReady, _this.readyHandler, _this);
         Router.registerHandler(Router.cmd.NotifyGameStart, _this.gameStart, _this);
         Router.registerHandler(Router.cmd.GetHandCards, _this.getCardsHandler, _this);
         Router.registerHandler(Router.cmd.PlayCard, _this.playCardHandler, _this);
+        Router.registerHandler(Router.cmd.NotifyGamePlaying, _this.gamePlaying, _this);
         return _this;
     }
     GameScene.prototype.onAddToStage = function (event) {
@@ -133,6 +137,8 @@ var GameScene = (function (_super) {
         this.addReadyIcons();
         this.addNameLables();
         this.updateRoomMemberInfo();
+        this.addTableCardGroup();
+        this.addPlayArrows();
     };
     GameScene.prototype.addAvatars = function () {
         var i = 0;
@@ -191,6 +197,31 @@ var GameScene = (function (_super) {
             this.addChild(this.readyIcons[i]);
         }
     };
+    GameScene.prototype.addPlayArrows = function () {
+        var i = 0;
+        var width = 40;
+        var height = 40;
+        for (i = 0; i < 4; ++i) {
+            var icon = new eui.Image();
+            icon.width = width;
+            icon.height = height;
+            icon.visible = false;
+            icon.source = RES.getRes("play_arrow");
+            icon.rotation = -(i * 90);
+            this.playingArrows[i] = icon;
+        }
+        this.playingArrows[0].verticalCenter = 150;
+        this.playingArrows[0].horizontalCenter = 0;
+        this.playingArrows[1].verticalCenter = 0;
+        this.playingArrows[1].horizontalCenter = 350;
+        this.playingArrows[2].verticalCenter = -150;
+        this.playingArrows[2].horizontalCenter = 0;
+        this.playingArrows[3].verticalCenter = 0;
+        this.playingArrows[3].horizontalCenter = -350;
+        for (i = 0; i < 4; ++i) {
+            this.addChild(this.playingArrows[i]);
+        }
+    };
     GameScene.prototype.addNameLables = function () {
         var i = 0;
         for (i = 0; i < 4; ++i) {
@@ -226,6 +257,14 @@ var GameScene = (function (_super) {
             this.userNameLabels[seat].visible = true;
             this.userNameLabels[seat].text = player.user_info.nick_name;
         }
+    };
+    GameScene.prototype.addTableCardGroup = function () {
+        this.tableCardGroup = new TableCards();
+        this.tableCardGroup.verticalCenter = 0;
+        this.tableCardGroup.horizontalCenter = 0;
+        this.tableCardGroup.width = 600;
+        this.tableCardGroup.height = 250;
+        this.addChild(this.tableCardGroup);
     };
     GameScene.prototype.memberChangeHandler = function (data) {
         var resp = data.response;
@@ -355,6 +394,7 @@ var GameScene = (function (_super) {
         this.playButton.left = 300;
         this.playButton.width = 80;
         this.playButton.height = 80;
+        this.playButton.visible = false;
         this.addChild(this.playButton);
         this.playButton.addEventListener("touchTap", this.playButtonHandler, this);
         this.disableButton = new eui.Image();
@@ -363,6 +403,7 @@ var GameScene = (function (_super) {
         this.disableButton.left = 400;
         this.disableButton.width = 80;
         this.disableButton.height = 80;
+        this.disableButton.visible = false;
         this.addChild(this.disableButton);
         this.cardGroups[0] = group;
     };
@@ -372,15 +413,76 @@ var GameScene = (function (_super) {
             return;
         }
         var cmd = Router.cmd.PlayCard;
+        this.lastPlayedCard = this.selectedIdx;
         var req = Router.genJsonRequest(cmd, {
             "user_id": Global.Instance.userInfo.userId,
             "room_id": Global.Instance.roomInfo.roomId,
-            "seat_no": String(Global.Instance.roomInfo.currSeat),
+            "seat": Global.Instance.roomInfo.currSeat,
             "card": this.cards[this.selectedIdx],
         });
+        WebUtil.default().send(req);
     };
     GameScene.prototype.playCardHandler = function (data) {
-        console.log(data);
+        var resp = data.response;
+        var info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            var icon = new eui.Image();
+            icon.source = RES.getRes("play_card");
+            icon.alpha = 0.8;
+            icon.width = 40;
+            icon.height = 40;
+            icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x;
+            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y;
+            // 给出过的牌增加标记
+            this.cardGroups[0].addChild(icon);
+        }
+        else {
+            // 提示失败
+            console.log("出牌失败");
+        }
+    };
+    GameScene.prototype.gamePlaying = function (data) {
+        var resp = data.response;
+        var info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            console.log(info);
+            var playSeat = info.curr_playing_seat;
+            var cards = info.curr_cards;
+            this.showOnGamePlaying(playSeat, cards);
+        }
+    };
+    GameScene.prototype.showOnGamePlaying = function (seat, cards) {
+        var dis = Global.Instance.roomInfo.currSeat;
+        var playSeat = (seat - dis + 4) % 4;
+        for (var i = 0; i < 4; ++i) {
+            if (i == playSeat) {
+                this.playingArrows[i].visible = true;
+            }
+            else {
+                this.playingArrows[i].visible = false;
+            }
+        }
+        if (seat == Global.Instance.roomInfo.currSeat) {
+            this.playButton.visible = true;
+            this.disableButton.visible = true;
+        }
+        else {
+            this.playButton.visible = false;
+            this.disableButton.visible = false;
+        }
+        if (cards == null) {
+            return;
+        }
+        console.log(cards);
+        console.log(cards.length.length);
+        console.log(this.tableCards.length);
+        if (cards.length.length > this.tableCards.length) {
+            for (var i = this.tableCards.length; i < cards.length; ++i) {
+                console.log("i: " + i);
+                this.tableCardGroup.addCard(cards[i]);
+            }
+            this.tableCards = cards;
+        }
     };
     return GameScene;
 }(eui.Group));
