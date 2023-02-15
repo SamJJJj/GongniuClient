@@ -161,6 +161,14 @@ var HallScene = (function (_super) {
             // 获取roomId;
             // 切换到 room 场景
             Global.Instance.roomInfo.roomId = info.room_id;
+            Global.Instance.roomInfo.players.push({
+                user_info: {
+                    nick_name: Global.Instance.userInfo.userName,
+                    avatar_url: "",
+                },
+                seat: 0,
+                is_ready: false
+            });
             var game = new GameScene();
             game.width = this.stage.width;
             game.height = this.stage.height;

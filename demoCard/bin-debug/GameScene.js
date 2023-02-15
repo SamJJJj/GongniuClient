@@ -51,9 +51,13 @@ var GameScene = (function (_super) {
         _this.avartars = new Array(4);
         _this.readyIcons = new Array(4);
         _this.userNameLabels = new Array(4);
+        _this.selectedIdx = -1;
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         Router.registerHandler(Router.cmd.NotifyRoomMemChange, _this.memberChangeHandler, _this);
         Router.registerHandler(Router.cmd.PlayerReady, _this.readyHandler, _this);
+        Router.registerHandler(Router.cmd.NotifyGameStart, _this.gameStart, _this);
+        Router.registerHandler(Router.cmd.GetHandCards, _this.getCardsHandler, _this);
+        Router.registerHandler(Router.cmd.PlayCard, _this.playCardHandler, _this);
         return _this;
     }
     GameScene.prototype.onAddToStage = function (event) {
@@ -70,7 +74,35 @@ var GameScene = (function (_super) {
                 egret.lifecycle.onResume = function () {
                     egret.ticker.resume();
                 };
+                this.loadResource().catch(function (e) {
+                    console.log(e);
+                });
                 return [2 /*return*/];
+            });
+        });
+    };
+    GameScene.prototype.loadResource = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var loadingView, e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        loadingView = new LoadingUI();
+                        return [4 /*yield*/, RES.loadConfig("resource/card.res.json", "resource/")];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, RES.loadGroup("cards", 0, loadingView)];
+                    case 2:
+                        _a.sent();
+                        console.log("load cards OK");
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        console.error(e_1);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
             });
         });
     };
@@ -99,6 +131,7 @@ var GameScene = (function (_super) {
         this.addChild(this.readyButton);
         this.addAvatars();
         this.addReadyIcons();
+        this.addNameLables();
         this.updateRoomMemberInfo();
     };
     GameScene.prototype.addAvatars = function () {
@@ -147,12 +180,12 @@ var GameScene = (function (_super) {
         // 0 代表自己 1 下家， 2 ...
         // 布局
         this.readyIcons[0].verticalCenter = 250;
-        this.readyIcons[0].horizontalCenter = 50;
-        this.readyIcons[1].verticalCenter = -50;
+        this.readyIcons[0].horizontalCenter = 100;
+        this.readyIcons[1].verticalCenter = -100;
         this.readyIcons[1].horizontalCenter = 450;
         this.readyIcons[2].verticalCenter = -250;
-        this.readyIcons[2].horizontalCenter = -50;
-        this.readyIcons[3].verticalCenter = 50;
+        this.readyIcons[2].horizontalCenter = -100;
+        this.readyIcons[3].verticalCenter = 100;
         this.readyIcons[3].horizontalCenter = -450;
         for (i = 0; i < 4; ++i) {
             this.addChild(this.readyIcons[i]);
@@ -171,8 +204,8 @@ var GameScene = (function (_super) {
         this.userNameLabels[0].horizontalCenter = 0;
         this.userNameLabels[1].verticalCenter = 50;
         this.userNameLabels[1].horizontalCenter = 450;
-        this.userNameLabels[2].verticalCenter = -250;
-        this.userNameLabels[2].horizontalCenter = 50;
+        this.userNameLabels[2].verticalCenter = -200;
+        this.userNameLabels[2].horizontalCenter = 0;
         this.userNameLabels[3].verticalCenter = 50;
         this.userNameLabels[3].horizontalCenter = -450;
         for (i = 0; i < 4; ++i) {
@@ -190,6 +223,7 @@ var GameScene = (function (_super) {
             if (player.is_ready) {
                 this.readyIcons[seat].visible = true;
             }
+            this.userNameLabels[seat].visible = true;
             this.userNameLabels[seat].text = player.user_info.nick_name;
         }
     };
@@ -240,6 +274,113 @@ var GameScene = (function (_super) {
             // 准备请求失败，show tips
             console.log("ready request error");
         }
+    };
+    GameScene.prototype.gameStart = function (data) {
+        this.readyButton.visible = false;
+        for (var _i = 0, _a = this.readyIcons; _i < _a.length; _i++) {
+            var icon = _a[_i];
+            icon.visible = false;
+        }
+        // 获取手牌请求
+        var cmd = Router.cmd.GetHandCards;
+        var req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+            "seat_no": String(Global.Instance.roomInfo.currSeat),
+        });
+        WebUtil.default().send(req);
+    };
+    GameScene.prototype.getCardsHandler = function (data) {
+        // 获取卡牌并显示
+        var resp = data.response;
+        var info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            this.cards = info.cards;
+            // 展示卡牌， 发送确认收到请求
+            this.showCards();
+            this.checkGetCard();
+        }
+        else {
+            console.log("get card error");
+        }
+    };
+    GameScene.prototype.checkGetCard = function () {
+        var cmd = Router.cmd.CheckGetCards;
+        var req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+        });
+        WebUtil.default().send(req);
+    };
+    GameScene.prototype.showCards = function () {
+        var _this = this;
+        var cards = new Array(6);
+        var i = 0;
+        for (var _i = 0, _a = this.cards; _i < _a.length; _i++) {
+            var card = _a[_i];
+            var image = new eui.Image();
+            image.source = RES.getRes("card_" + card.head + "_" + card.tail);
+            image.height = 100;
+            image.width = 40;
+            image.addEventListener("touchTap", function (e) {
+                var i = 0;
+                for (var _i = 0, cards_1 = cards; _i < cards_1.length; _i++) {
+                    var card_1 = cards_1[_i];
+                    if (e.target == card_1) {
+                        break;
+                    }
+                    ++i;
+                }
+                console.log(e.target);
+                console.log(i);
+                _this.selectedIdx = i;
+            }, this);
+            cards[i++] = image;
+        }
+        var initleft = 0;
+        var group = new eui.Group();
+        group.left = 300;
+        group.top = 430;
+        for (var _b = 0, cards_2 = cards; _b < cards_2.length; _b++) {
+            var card = cards_2[_b];
+            group.addChild(card);
+            card.left = initleft;
+            card.top = 0;
+            initleft += 40;
+        }
+        this.addChild(group);
+        this.playButton = new eui.Image();
+        this.playButton.source = RES.getRes("play_card");
+        this.playButton.top = 530;
+        this.playButton.left = 300;
+        this.playButton.width = 80;
+        this.playButton.height = 80;
+        this.addChild(this.playButton);
+        this.playButton.addEventListener("touchTap", this.playButtonHandler, this);
+        this.disableButton = new eui.Image();
+        this.disableButton.source = RES.getRes("disable_card");
+        this.disableButton.top = 530;
+        this.disableButton.left = 400;
+        this.disableButton.width = 80;
+        this.disableButton.height = 80;
+        this.addChild(this.disableButton);
+        this.cardGroups[0] = group;
+    };
+    GameScene.prototype.playButtonHandler = function () {
+        if (this.selectedIdx == -1) {
+            console.log("no selected card");
+            return;
+        }
+        var cmd = Router.cmd.PlayCard;
+        var req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+            "seat_no": String(Global.Instance.roomInfo.currSeat),
+            "card": this.cards[this.selectedIdx],
+        });
+    };
+    GameScene.prototype.playCardHandler = function (data) {
+        console.log(data);
     };
     return GameScene;
 }(eui.Group));

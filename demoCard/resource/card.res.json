@@ -1,0 +1,90 @@
+{
+    "groups": [
+        {
+            "keys": "card_1_1,card_2_2,card_3_1,card_3_3,card_4_4,card_5_1,card_5_5,card_6_1,card_6_2,card_6_3,card_6_4,card_6_5,card_6_6,card_back,disable_card,play_card",
+            "name": "cards"
+        }
+    ],
+    "resources": [
+        {
+            "name": "card_1_1",
+            "type": "image",
+            "url": "assets/card_1_1.png"
+        },
+        {
+            "name": "card_2_2",
+            "type": "image",
+            "url": "assets/card_2_2.png"
+        },
+        {
+            "name": "card_3_1",
+            "type": "image",
+            "url": "assets/card_3_1.png"
+        },
+        {
+            "name": "card_3_3",
+            "type": "image",
+            "url": "assets/card_3_3.png"
+        },
+        {
+            "name": "card_4_4",
+            "type": "image",
+            "url": "assets/card_4_4.png"
+        },
+        {
+            "name": "card_5_1",
+            "type": "image",
+            "url": "assets/card_5_1.png"
+        },
+        {
+            "name": "card_5_5",
+            "type": "image",
+            "url": "assets/card_5_5.png"
+        },
+        {
+            "name": "card_6_1",
+            "type": "image",
+            "url": "assets/card_6_1.png"
+        },
+        {
+            "name": "card_6_2",
+            "type": "image",
+            "url": "assets/card_6_2.png"
+        },
+        {
+            "name": "card_6_3",
+            "type": "image",
+            "url": "assets/card_6_3.png"
+        },
+        {
+            "name": "card_6_4",
+            "type": "image",
+            "url": "assets/card_6_4.png"
+        },
+        {
+            "name": "card_6_5",
+            "type": "image",
+            "url": "assets/card_6_5.png"
+        },
+        {
+            "name": "card_6_6",
+            "type": "image",
+            "url": "assets/card_6_6.png"
+        },
+        {
+            "name": "play_card",
+            "type": "image",
+            "url": "assets/play_card.png"
+        },
+        {
+            "name": "disable_card",
+            "type": "image",
+            "url": "assets/disable_card.png"
+        },
+        {
+            "name": "card_back",
+            "type": "image",
+            "url": "assets/back.png"
+        }
+    ]
+}

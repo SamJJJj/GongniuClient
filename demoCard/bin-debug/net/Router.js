@@ -30,6 +30,8 @@ var Router = (function () {
         LeaveRoom: "leave_room",
         PlayerReady: "player_ready",
         GetHandCards: "get_hand_cards",
+        PlayCard: "play_card",
+        DisableCard: "disable_card",
         CheckGetCards: "check_get_cards",
         NotifyRoomMemChange: "notify_room_mem_change",
         NotifyGameStart: "notify_game_start",

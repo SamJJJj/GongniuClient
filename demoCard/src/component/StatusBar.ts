@@ -7,15 +7,17 @@ class StatusBar extends eui.Group {
         super.createChildren();
         let avartarFrame = new eui.Image();
         avartarFrame.source = RES.getRes("avartar_frame_png");
-        avartarFrame.height = 100
-        avartarFrame.width = 100
+        avartarFrame.top = 10;
+        avartarFrame.left = 10;
+        avartarFrame.height = 80;
+        avartarFrame.width = 80;
         this.addChild(avartarFrame)
 
         this.avatar = new eui.Image();
-        this.avatar.top = 10;
-        this.avatar.left = 10;
-        this.avatar.width = 90;
-        this.avatar.height = 90;
+        this.avatar.top = 15;
+        this.avatar.left = 15;
+        this.avatar.width = 70;
+        this.avatar.height = 70;
         this.addChild(this.avatar);
 
         this.nickName = new eui.Label();

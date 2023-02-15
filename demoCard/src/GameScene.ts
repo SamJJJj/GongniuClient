@@ -1,9 +1,17 @@
+type Card = {
+    head: number;
+    tail: number;
+}
+
 class GameScene extends eui.Group {
     constructor() {
         super();
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
         Router.registerHandler(Router.cmd.NotifyRoomMemChange, this.memberChangeHandler, this);
         Router.registerHandler(Router.cmd.PlayerReady, this.readyHandler, this);
+        Router.registerHandler(Router.cmd.NotifyGameStart, this.gameStart, this);
+        Router.registerHandler(Router.cmd.GetHandCards, this.getCardsHandler, this);
+        Router.registerHandler(Router.cmd.PlayCard, this.playCardHandler, this);
     }
 
     private async onAddToStage(event: egret.Event) {
@@ -21,6 +29,22 @@ class GameScene extends eui.Group {
         egret.lifecycle.onResume = () => {
             egret.ticker.resume();
         }
+
+        this.loadResource().catch(e => {
+            console.log(e);
+        })
+    }
+
+    private async loadResource() {
+        try {
+            const loadingView = new LoadingUI();
+            await RES.loadConfig("resource/card.res.json", "resource/");
+            await RES.loadGroup("cards", 0, loadingView);
+            console.log("load cards OK")
+        }
+        catch (e) {
+            console.error(e);
+        }
     }
 
     private readyButton: eui.Image;
@@ -29,6 +53,10 @@ class GameScene extends eui.Group {
     private avartars: eui.Image[] = new Array<eui.Image>(4);
     private readyIcons: eui.Image[] = new Array<eui.Image>(4);
     private userNameLabels: eui.Label[] = new Array<eui.Label>(4);
+    private cards: Card[];
+    private selectedIdx = -1;
+    private playButton: eui.Image;
+    private disableButton: eui.Image;
 
     protected createChildren(): void {
         super.createChildren();
@@ -136,8 +164,8 @@ class GameScene extends eui.Group {
         this.userNameLabels[0].horizontalCenter = 0;
         this.userNameLabels[1].verticalCenter = 50;
         this.userNameLabels[1].horizontalCenter = 450;
-        this.userNameLabels[2].verticalCenter = -250;
-        this.userNameLabels[2].horizontalCenter = 50;
+        this.userNameLabels[2].verticalCenter = -200;
+        this.userNameLabels[2].horizontalCenter = 0;
         this.userNameLabels[3].verticalCenter = 50;
         this.userNameLabels[3].horizontalCenter = -450;
 
@@ -212,4 +240,116 @@ class GameScene extends eui.Group {
             console.log("ready request error");
         }
     }
+
+    private gameStart(data) {
+        this.readyButton.visible = false;
+        for (let icon of this.readyIcons) {
+            icon.visible = false;
+        }
+        // 获取手牌请求
+        let cmd = Router.cmd.GetHandCards;
+        let req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+            "seat_no": String(Global.Instance.roomInfo.currSeat),
+        })
+        WebUtil.default().send(req);
+    }
+
+    private getCardsHandler(data) {
+        // 获取卡牌并显示
+        let resp = data.response;
+        let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))))
+        if (resp.code == 0) {
+            this.cards = info.cards;
+            // 展示卡牌， 发送确认收到请求
+            this.showCards();
+            this.checkGetCard();
+        } else {
+            console.log("get card error");
+        }
+    }
+
+    private checkGetCard() {
+        let cmd = Router.cmd.CheckGetCards;
+        let req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+        })
+        WebUtil.default().send(req);
+    }
+
+    private showCards() {
+        let cards = new Array<eui.Image>(6);
+        let i = 0;
+        for (let card of this.cards) {
+            let image = new eui.Image();
+            image.source = RES.getRes("card_" + card.head + "_" + card.tail);
+            image.height = 100;
+            image.width = 40;
+            image.addEventListener("touchTap", (e) => {
+                let i = 0;
+                for (let card of cards) {
+                    if (e.target == card) {
+                        break;
+                    }
+                    ++i;
+                }
+                console.log(e.target);
+                console.log(i);
+                this.selectedIdx = i;
+            }, this);
+            cards[i++] = image;
+        }
+        let initleft = 0;
+        let group = new eui.Group()
+        group.left = 300;
+        group.top = 430;
+        for (let card of cards) {
+            group.addChild(card);
+            card.left = initleft;
+            card.top = 0;
+            initleft += 40;
+        }
+        this.addChild(group);
+
+        this.playButton = new eui.Image();
+        this.playButton.source = RES.getRes("play_card");
+        this.playButton.top = 530;
+        this.playButton.left = 300;
+        this.playButton.width = 80;
+        this.playButton.height = 80;
+        this.addChild(this.playButton);
+        this.playButton.addEventListener("touchTap", this.playButtonHandler, this);
+
+        this.disableButton = new eui.Image();
+        this.disableButton.source = RES.getRes("disable_card");
+        this.disableButton.top = 530;
+        this.disableButton.left = 400;
+        this.disableButton.width = 80;
+        this.disableButton.height = 80;
+        this.addChild(this.disableButton);
+
+        this.cardGroups[0] = group;
+    }
+
+    private playButtonHandler() {
+        if (this.selectedIdx == -1) {
+            console.log("no selected card");
+            return
+        }
+        let cmd = Router.cmd.PlayCard;
+        let req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+            "seat_no": String(Global.Instance.roomInfo.currSeat),
+            "card": this.cards[this.selectedIdx],
+        })
+
+    }
+
+    private playCardHandler(data) {
+        console.log(data);
+    }
+
 }

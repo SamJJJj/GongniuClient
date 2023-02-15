@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_png,egret_icon_png,login_png,description_json,create_game_png,add_game_png,confirm_png,cancel_png,input_png,ready_png,ready_icon_png",
+			"keys": "bg_png,egret_icon_png,login_png,description_json,create_game_png,add_game_png,confirm_png,cancel_png,input_png,ready_png,ready_icon_png,avartar_frame_png",
 			"name": "preload"
 		}
 	],
