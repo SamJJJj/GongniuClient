@@ -1,7 +1,7 @@
 {
     "groups": [
         {
-            "keys": "card_1_1,card_2_2,card_3_1,card_3_3,card_4_4,card_5_1,card_5_5,card_6_1,card_6_2,card_6_3,card_6_4,card_6_5,card_6_6,card_back,disable_card,play_card,play_arrow",
+            "keys": "card_1_1,card_2_2,card_3_1,card_3_3,card_4_4,card_5_1,card_5_5,card_6_1,card_6_2,card_6_3,card_6_4,card_6_5,card_6_6,card_back,disable_card,play_card,play_arrow,finish_back",
             "name": "cards"
         }
     ],
@@ -85,6 +85,11 @@
             "name": "play_arrow",
             "type": "image",
             "url": "assets/play_arrow.png"
+        },
+        {
+            "name": "finish_back",
+            "type": "image",
+            "url": "assets/finish_back.png"
         },
         {
             "name": "card_back",

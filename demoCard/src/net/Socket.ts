@@ -8,6 +8,9 @@ class WebUtil {
 
     public connected = false;
 
+    private timeout;
+    private serverTimeout;
+
     constructor() {
         this.socket = new egret.WebSocket();
         this.socket.type = egret.WebSocket.TYPE_STRING
@@ -27,6 +30,7 @@ class WebUtil {
 
     public connect(url: string): void {
         this.socket.connectByUrl(url);
+        this.start();
     }
 
     public setReceiveCallback(callback: Function, thisObject: any): void {
@@ -39,6 +43,22 @@ class WebUtil {
         console.log(data)
     }
 
+    private clear() {
+        this.timeout && clearTimeout(this.timeout);
+        this.serverTimeout && clearTimeout(this.serverTimeout);
+    }
+
+    private start() {
+        this.timeout = setTimeout(function () {
+            let hb = Router.genJsonRequest("heartbeat", {});
+            this.send(hb);
+            this.serverTimeout = setTimeout(function () {
+                console.log("heat beat expired")
+                this.socket.close();
+            }, 360)
+        }, 180)
+    }
+
     private onReceiveMessage(e: egret.Event): void {
         var jsonStr = this.socket.readUTF();
         console.log(jsonStr)
@@ -46,6 +66,10 @@ class WebUtil {
             return;
         }
         var jsonObj = JSON.parse(jsonStr);
+        if (jsonObj.cmd == "heartbeat") {
+            this.clear();
+            this.start();
+        }
         this.receiveCallback.call(this.receiveThisObject, jsonObj);
     }
 

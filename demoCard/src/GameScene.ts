@@ -12,7 +12,9 @@ class GameScene extends eui.Group {
         Router.registerHandler(Router.cmd.NotifyGameStart, this.gameStart, this);
         Router.registerHandler(Router.cmd.GetHandCards, this.getCardsHandler, this);
         Router.registerHandler(Router.cmd.PlayCard, this.playCardHandler, this);
+        Router.registerHandler(Router.cmd.DisableCard, this.disableCardHandler, this);
         Router.registerHandler(Router.cmd.NotifyGamePlaying, this.gamePlaying, this);
+        Router.registerHandler(Router.cmd.NotifyGameFinished, this.showFinish, this);
     }
 
     private async onAddToStage(event: egret.Event) {
@@ -375,6 +377,7 @@ class GameScene extends eui.Group {
         this.disableButton.height = 80;
         this.disableButton.visible = false;
         this.addChild(this.disableButton);
+        this.disableButton.addEventListener("touchTap", this.disableButtonHandler, this);
 
         this.cardGroups[0] = group;
     }
@@ -401,7 +404,42 @@ class GameScene extends eui.Group {
         if (resp.code == 0) {
             let icon = new eui.Image();
             icon.source = RES.getRes("play_card");
-            icon.alpha = 0.8;
+            // icon.alpha = 0.8;
+            icon.width = 40;
+            icon.height = 40;
+            icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x
+            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y
+            // 给出过的牌增加标记
+            this.cardGroups[0].addChild(icon);
+        } else {
+            // 提示失败
+            console.log("出牌失败");
+        }
+    }
+
+    private disableButtonHandler() {
+        if (this.selectedIdx == -1) {
+            console.log("no selected card");
+            return
+        }
+        let cmd = Router.cmd.DisableCard;
+        this.lastPlayedCard = this.selectedIdx;
+        let req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+            "seat": Global.Instance.roomInfo.currSeat,
+            "card": this.cards[this.selectedIdx],
+        })
+        WebUtil.default().send(req);
+    }
+
+    private disableCardHandler(data) {
+        let resp = data.response;
+        let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            let icon = new eui.Image();
+            icon.source = RES.getRes("disable_card");
+            // icon.alpha = 0.8;
             icon.width = 40;
             icon.height = 40;
             icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x
@@ -457,6 +495,21 @@ class GameScene extends eui.Group {
                 this.tableCardGroup.addCard(cards[i]);
             }
             this.tableCards = cards;
+        }
+    }
+
+    private showFinish(data) {
+        let resp = data.response;
+        let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        let scores = info.scores;
+        let finish = new FinishBoard();
+        finish.verticalCenter = 0;
+        finish.horizontalCenter = 0;
+        finish.width = 600;
+        finish.height = 300;
+        this.addChild(finish);
+        for (let score of scores) {
+            finish.addScore(score.seat, score.score);
         }
     }
 }
