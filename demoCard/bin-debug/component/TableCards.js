@@ -18,12 +18,6 @@ var TableCards = (function (_super) {
     }
     TableCards.prototype.createChildren = function () {
         _super.prototype.createChildren.call(this);
-        var outline = new egret.Shape;
-        outline.graphics.lineStyle(3, 0xFFFFFF);
-        outline.graphics.beginFill(0x000000, 0);
-        outline.graphics.drawRect(0, 0, 600, 250); /// 注意该轮廓为Shape，没有参与布局，所以其尺寸并不能影响容器的尺寸
-        outline.graphics.endFill();
-        this.addChild(outline);
     };
     TableCards.prototype.addCard = function (card) {
         var maxWidth = 600;
@@ -32,28 +26,32 @@ var TableCards = (function (_super) {
         console.log('img:' + "card_" + card.head + "_" + card.tail);
         cardImg.width = 30;
         cardImg.height = 75;
+        var dis = 10;
         if (card.head == card.tail) {
             // 横着放
             cardImg.rotation = -90;
-            if (this.lastLeft + cardImg.height > maxWidth) {
+            if (this.lastLeft + cardImg.height + dis > maxWidth) {
                 this.lastTop += 100;
                 this.lastLeft = 0;
             }
             cardImg.top = this.lastTop;
             cardImg.left = this.lastLeft;
-            this.lastLeft += cardImg.height;
+            this.lastLeft += cardImg.height + dis;
         }
         else {
             //竖着放
-            if (this.lastLeft + cardImg.width > maxWidth) {
+            if (this.lastLeft + cardImg.width + dis > maxWidth) {
                 this.lastTop += 100;
                 this.lastLeft = 0;
             }
             cardImg.top = this.lastTop;
             cardImg.left = this.lastLeft;
-            this.lastLeft += cardImg.width;
+            this.lastLeft += cardImg.width + dis;
         }
         this.addChild(cardImg);
+    };
+    TableCards.prototype.clear = function () {
+        this.removeChildren();
     };
     return TableCards;
 }(eui.Group));

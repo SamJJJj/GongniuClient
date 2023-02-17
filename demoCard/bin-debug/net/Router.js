@@ -36,6 +36,7 @@ var Router = (function () {
         NotifyRoomMemChange: "notify_room_mem_change",
         NotifyGameStart: "notify_game_start",
         NotifyGamePlaying: "notify_game_playing",
+        NotifyGameFinished: "notify_game_finished" //通知游戏结束
     };
     Router.cmd2Handler = {};
     Router.cmd2Obj = {};

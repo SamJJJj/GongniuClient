@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "bg_png,egret_icon_png,login_png,description_json,create_game_png,add_game_png,confirm_png,cancel_png,input_png,ready_png,ready_icon_png,avartar_frame_png",
+			"keys": "bg_png,egret_icon_png,login_png,description_json,create_game_png,add_game_png,play_arrow,confirm_png,cancel_png,input_png,ready_png,ready_icon_png,avartar_frame_png,close",
 			"name": "preload"
 		}
 	],
@@ -65,6 +65,16 @@
 			"name": "ready_icon_png",
 			"type": "image",
 			"url": "assets/ready_icon.png"
+		},
+		{
+			"name": "play_arrow",
+			"type": "image",
+			"url": "assets/play_arrow.png"
+		},
+		{
+			"name": "close",
+			"type": "image",
+			"url": "assets/close.png"
 		},
 		{
 			"name": "add_game_png",

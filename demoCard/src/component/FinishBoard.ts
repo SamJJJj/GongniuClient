@@ -1,4 +1,5 @@
 class FinishBoard extends eui.Group {
+    public closeHandler: Function
     private group: eui.Group;
     protected createChildren(): void {
         super.createChildren();
@@ -21,6 +22,12 @@ class FinishBoard extends eui.Group {
         layout.verticalAlign = egret.VerticalAlign.MIDDLE;
         this.group.layout = layout;
         this.addChild(this.group);
+        let close = new eui.Image();
+        close.source = RES.getRes("close");
+        close.top = 0;
+        close.left = 0;
+        close.addEventListener("touchTap", () => { this.closeHandler(); }, this)
+        this.addChild(close)
     }
 
     public addScore(seat, score) {

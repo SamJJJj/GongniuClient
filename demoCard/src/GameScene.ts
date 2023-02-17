@@ -15,6 +15,7 @@ class GameScene extends eui.Group {
         Router.registerHandler(Router.cmd.DisableCard, this.disableCardHandler, this);
         Router.registerHandler(Router.cmd.NotifyGamePlaying, this.gamePlaying, this);
         Router.registerHandler(Router.cmd.NotifyGameFinished, this.showFinish, this);
+        Router.registerHandler(Router.cmd.LeaveRoom, this.leaveRoomHandler, this);
     }
 
     private async onAddToStage(event: egret.Event) {
@@ -51,6 +52,7 @@ class GameScene extends eui.Group {
     }
 
     private readyButton: eui.Image;
+    private leaveButton: eui.Image;
 
     private cardGroups: eui.Group[] = new Array<eui.Group>(4);
     private avartars: eui.Image[] = new Array<eui.Image>(4);
@@ -90,6 +92,13 @@ class GameScene extends eui.Group {
         this.readyButton.verticalCenter = 160;
         this.readyButton.addEventListener("touchTap", this.readyButtonHanler, this);
 
+        this.leaveButton = new eui.Image();
+        this.leaveButton.source = RES.getRes("close");
+        this.leaveButton.right = 0;
+        this.leaveButton.top = 0;
+        this.leaveButton.visible = false;
+        this.leaveButton.addEventListener("touchTap", this.leaveHandler, this);
+
         this.addChild(this.readyButton);
         this.addAvatars();
         this.addReadyIcons();
@@ -97,6 +106,7 @@ class GameScene extends eui.Group {
         this.updateRoomMemberInfo();
         this.addTableCardGroup();
         this.addPlayArrows();
+        this.addChild(this.leaveButton);
     }
 
     private addAvatars() {
@@ -172,6 +182,7 @@ class GameScene extends eui.Group {
             icon.source = RES.getRes("play_arrow");
             icon.rotation = -(i * 90);
             this.playingArrows[i] = icon;
+            console.log("arrows initiated: i:", i, "icon:", icon);
         }
 
         this.playingArrows[0].verticalCenter = 150;
@@ -213,6 +224,12 @@ class GameScene extends eui.Group {
 
     private updateRoomMemberInfo() {
         let dis = Global.Instance.roomInfo.currSeat;
+        this.leaveButton.visible = true;
+        for (let seat = 0; seat < 4; ++seat) {
+            this.avartars[seat].visible = false;
+            this.readyIcons[seat].visible = false;
+            this.userNameLabels[seat].visible = false;
+        }
         for (let player of Global.Instance.roomInfo.players) {
             let seat = (player.seat - dis + 4) % 4;
             this.avartars[seat].visible = true;
@@ -221,8 +238,8 @@ class GameScene extends eui.Group {
             if (player.is_ready) {
                 this.readyIcons[seat].visible = true;
             }
-            this.userNameLabels[seat].visible = true;
             this.userNameLabels[seat].text = player.user_info.nick_name;
+            this.userNameLabels[seat].visible = true;
         }
     }
 
@@ -287,7 +304,32 @@ class GameScene extends eui.Group {
         }
     }
 
-    private gameStart(data) {
+    private leaveHandler() {
+        let cmd = Router.cmd.LeaveRoom;
+        let req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+        });
+        WebUtil.default().send(req);
+    }
+
+    private leaveRoomHandler(data) {
+        let resp = data.response;
+        // let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))))
+        if (resp.code == 0) {
+            // 转到home scene
+            let hall = new HallScene();
+            hall.width = this.stage.width;
+            hall.height = this.stage.height;
+            // 置空房间信息
+            // Global.Instance.roomInfo = null;
+            SceneManager.Instance.pushScene(hall);
+        } else {
+            console.log("leave Room failed");
+        }
+    }
+
+    private gameStart() {
+        this.leaveButton.visible = false;
         this.readyButton.visible = false;
         for (let icon of this.readyIcons) {
             icon.visible = false;
@@ -355,7 +397,7 @@ class GameScene extends eui.Group {
             group.addChild(card);
             card.left = initleft;
             card.top = 0;
-            initleft += 40;
+            initleft += 50;
         }
         this.addChild(group);
 
@@ -407,8 +449,8 @@ class GameScene extends eui.Group {
             // icon.alpha = 0.8;
             icon.width = 40;
             icon.height = 40;
-            icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x
-            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y
+            icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x;
+            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y + 20;
             // 给出过的牌增加标记
             this.cardGroups[0].addChild(icon);
         } else {
@@ -469,6 +511,7 @@ class GameScene extends eui.Group {
         for (let i = 0; i < 4; ++i) {
             if (i == playSeat) {
                 this.playingArrows[i].visible = true;
+                console.log("arrows: i ", i, " arrow: ", this.playingArrows[i]);
             } else {
                 this.playingArrows[i].visible = false;
             }
@@ -507,6 +550,23 @@ class GameScene extends eui.Group {
         finish.horizontalCenter = 0;
         finish.width = 600;
         finish.height = 300;
+        finish.closeHandler = () => {
+            this.removeChild(finish);
+            this.readyButton.visible = true;
+            this.removeChild(this.cardGroups[0]);
+            this.tableCards = new Array<Card>(0);
+            for (let i = 0; i < 4; ++i) {
+                this.playingArrows[i].visible = false;
+                this.readyIcons[i].visible = false;
+            }
+            this.playButton.visible = false;
+            this.disableButton.visible = false;
+            this.tableCardGroup.clear();
+            this.leaveButton.visible = true;
+            // for (let i = 0; i < 4; ++i) {
+            //     this.removeChild(this.cardGroups[i]);
+            // }
+        }
         this.addChild(finish);
         for (let score of scores) {
             finish.addScore(score.seat, score.score);

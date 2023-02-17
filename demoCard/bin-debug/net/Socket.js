@@ -19,6 +19,7 @@ var WebUtil = (function () {
     };
     WebUtil.prototype.connect = function (url) {
         this.socket.connectByUrl(url);
+        this.start();
     };
     WebUtil.prototype.setReceiveCallback = function (callback, thisObject) {
         this.receiveCallback = callback;
@@ -28,6 +29,20 @@ var WebUtil = (function () {
         this.socket.writeUTF(data);
         console.log(data);
     };
+    WebUtil.prototype.clear = function () {
+        this.timeout && clearTimeout(this.timeout);
+        this.serverTimeout && clearTimeout(this.serverTimeout);
+    };
+    WebUtil.prototype.start = function () {
+        this.timeout = setTimeout(function () {
+            var hb = Router.genJsonRequest("heartbeat", {});
+            this.send(hb);
+            this.serverTimeout = setTimeout(function () {
+                console.log("heat beat expired");
+                this.socket.close();
+            }, 360);
+        }, 180);
+    };
     WebUtil.prototype.onReceiveMessage = function (e) {
         var jsonStr = this.socket.readUTF();
         console.log(jsonStr);
@@ -35,6 +50,10 @@ var WebUtil = (function () {
             return;
         }
         var jsonObj = JSON.parse(jsonStr);
+        if (jsonObj.cmd == "heartbeat") {
+            this.clear();
+            this.start();
+        }
         this.receiveCallback.call(this.receiveThisObject, jsonObj);
     };
     WebUtil.prototype.onConnected = function () {

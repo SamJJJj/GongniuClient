@@ -61,7 +61,10 @@ var GameScene = (function (_super) {
         Router.registerHandler(Router.cmd.NotifyGameStart, _this.gameStart, _this);
         Router.registerHandler(Router.cmd.GetHandCards, _this.getCardsHandler, _this);
         Router.registerHandler(Router.cmd.PlayCard, _this.playCardHandler, _this);
+        Router.registerHandler(Router.cmd.DisableCard, _this.disableCardHandler, _this);
         Router.registerHandler(Router.cmd.NotifyGamePlaying, _this.gamePlaying, _this);
+        Router.registerHandler(Router.cmd.NotifyGameFinished, _this.showFinish, _this);
+        Router.registerHandler(Router.cmd.LeaveRoom, _this.leaveRoomHandler, _this);
         return _this;
     }
     GameScene.prototype.onAddToStage = function (event) {
@@ -132,6 +135,12 @@ var GameScene = (function (_super) {
         this.readyButton.horizontalCenter = 0;
         this.readyButton.verticalCenter = 160;
         this.readyButton.addEventListener("touchTap", this.readyButtonHanler, this);
+        this.leaveButton = new eui.Image();
+        this.leaveButton.source = RES.getRes("close");
+        this.leaveButton.right = 0;
+        this.leaveButton.top = 0;
+        this.leaveButton.visible = false;
+        this.leaveButton.addEventListener("touchTap", this.leaveHandler, this);
         this.addChild(this.readyButton);
         this.addAvatars();
         this.addReadyIcons();
@@ -139,6 +148,7 @@ var GameScene = (function (_super) {
         this.updateRoomMemberInfo();
         this.addTableCardGroup();
         this.addPlayArrows();
+        this.addChild(this.leaveButton);
     };
     GameScene.prototype.addAvatars = function () {
         var i = 0;
@@ -209,6 +219,7 @@ var GameScene = (function (_super) {
             icon.source = RES.getRes("play_arrow");
             icon.rotation = -(i * 90);
             this.playingArrows[i] = icon;
+            console.log("arrows initiated: i:", i, "icon:", icon);
         }
         this.playingArrows[0].verticalCenter = 150;
         this.playingArrows[0].horizontalCenter = 0;
@@ -245,6 +256,12 @@ var GameScene = (function (_super) {
     };
     GameScene.prototype.updateRoomMemberInfo = function () {
         var dis = Global.Instance.roomInfo.currSeat;
+        this.leaveButton.visible = true;
+        for (var seat = 0; seat < 4; ++seat) {
+            this.avartars[seat].visible = false;
+            this.readyIcons[seat].visible = false;
+            this.userNameLabels[seat].visible = false;
+        }
         for (var _i = 0, _a = Global.Instance.roomInfo.players; _i < _a.length; _i++) {
             var player = _a[_i];
             var seat = (player.seat - dis + 4) % 4;
@@ -254,8 +271,8 @@ var GameScene = (function (_super) {
             if (player.is_ready) {
                 this.readyIcons[seat].visible = true;
             }
-            this.userNameLabels[seat].visible = true;
             this.userNameLabels[seat].text = player.user_info.nick_name;
+            this.userNameLabels[seat].visible = true;
         }
     };
     GameScene.prototype.addTableCardGroup = function () {
@@ -314,7 +331,31 @@ var GameScene = (function (_super) {
             console.log("ready request error");
         }
     };
-    GameScene.prototype.gameStart = function (data) {
+    GameScene.prototype.leaveHandler = function () {
+        var cmd = Router.cmd.LeaveRoom;
+        var req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+        });
+        WebUtil.default().send(req);
+    };
+    GameScene.prototype.leaveRoomHandler = function (data) {
+        var resp = data.response;
+        // let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))))
+        if (resp.code == 0) {
+            // 转到home scene
+            var hall = new HallScene();
+            hall.width = this.stage.width;
+            hall.height = this.stage.height;
+            // 置空房间信息
+            Global.Instance.roomInfo = null;
+            SceneManager.Instance.pushScene(hall);
+        }
+        else {
+            console.log("leave Room failed");
+        }
+    };
+    GameScene.prototype.gameStart = function () {
+        this.leaveButton.visible = false;
         this.readyButton.visible = false;
         for (var _i = 0, _a = this.readyIcons; _i < _a.length; _i++) {
             var icon = _a[_i];
@@ -385,7 +426,7 @@ var GameScene = (function (_super) {
             group.addChild(card);
             card.left = initleft;
             card.top = 0;
-            initleft += 40;
+            initleft += 50;
         }
         this.addChild(group);
         this.playButton = new eui.Image();
@@ -405,6 +446,7 @@ var GameScene = (function (_super) {
         this.disableButton.height = 80;
         this.disableButton.visible = false;
         this.addChild(this.disableButton);
+        this.disableButton.addEventListener("touchTap", this.disableButtonHandler, this);
         this.cardGroups[0] = group;
     };
     GameScene.prototype.playButtonHandler = function () {
@@ -428,7 +470,41 @@ var GameScene = (function (_super) {
         if (resp.code == 0) {
             var icon = new eui.Image();
             icon.source = RES.getRes("play_card");
-            icon.alpha = 0.8;
+            // icon.alpha = 0.8;
+            icon.width = 40;
+            icon.height = 40;
+            icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x;
+            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y + 20;
+            // 给出过的牌增加标记
+            this.cardGroups[0].addChild(icon);
+        }
+        else {
+            // 提示失败
+            console.log("出牌失败");
+        }
+    };
+    GameScene.prototype.disableButtonHandler = function () {
+        if (this.selectedIdx == -1) {
+            console.log("no selected card");
+            return;
+        }
+        var cmd = Router.cmd.DisableCard;
+        this.lastPlayedCard = this.selectedIdx;
+        var req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+            "seat": Global.Instance.roomInfo.currSeat,
+            "card": this.cards[this.selectedIdx],
+        });
+        WebUtil.default().send(req);
+    };
+    GameScene.prototype.disableCardHandler = function (data) {
+        var resp = data.response;
+        var info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        if (resp.code == 0) {
+            var icon = new eui.Image();
+            icon.source = RES.getRes("disable_card");
+            // icon.alpha = 0.8;
             icon.width = 40;
             icon.height = 40;
             icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x;
@@ -457,6 +533,7 @@ var GameScene = (function (_super) {
         for (var i = 0; i < 4; ++i) {
             if (i == playSeat) {
                 this.playingArrows[i].visible = true;
+                console.log("arrows: i ", i, " arrow: ", this.playingArrows[i]);
             }
             else {
                 this.playingArrows[i].visible = false;
@@ -474,14 +551,47 @@ var GameScene = (function (_super) {
             return;
         }
         console.log(cards);
-        console.log(cards.length.length);
+        console.log(cards.length);
         console.log(this.tableCards.length);
-        if (cards.length.length > this.tableCards.length) {
+        if (cards.length > this.tableCards.length) {
             for (var i = this.tableCards.length; i < cards.length; ++i) {
                 console.log("i: " + i);
                 this.tableCardGroup.addCard(cards[i]);
             }
             this.tableCards = cards;
+        }
+    };
+    GameScene.prototype.showFinish = function (data) {
+        var _this = this;
+        var resp = data.response;
+        var info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        var scores = info.scores;
+        var finish = new FinishBoard();
+        finish.verticalCenter = 0;
+        finish.horizontalCenter = 0;
+        finish.width = 600;
+        finish.height = 300;
+        finish.closeHandler = function () {
+            _this.removeChild(finish);
+            _this.readyButton.visible = true;
+            _this.removeChild(_this.cardGroups[0]);
+            _this.tableCards = new Array(0);
+            for (var i = 0; i < 4; ++i) {
+                _this.playingArrows[i].visible = false;
+                _this.readyIcons[i].visible = false;
+            }
+            _this.playButton.visible = false;
+            _this.disableButton.visible = false;
+            _this.tableCardGroup.clear();
+            _this.leaveButton.visible = true;
+            // for (let i = 0; i < 4; ++i) {
+            //     this.removeChild(this.cardGroups[i]);
+            // }
+        };
+        this.addChild(finish);
+        for (var _i = 0, scores_1 = scores; _i < scores_1.length; _i++) {
+            var score = scores_1[_i];
+            finish.addScore(score.seat, score.score);
         }
     };
     return GameScene;
