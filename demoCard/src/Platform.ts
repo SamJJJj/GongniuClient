@@ -10,11 +10,15 @@ declare interface Platform {
 
     login(): Promise<any>
 
+    getUserProfile(): Promise<any>
 }
 
 class DebugPlatform implements Platform {
     async getUserInfo() {
         return { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6) }
+    }
+    async getUserProfile() {
+
     }
     async login() {
 

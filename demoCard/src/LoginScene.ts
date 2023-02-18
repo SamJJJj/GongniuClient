@@ -36,7 +36,7 @@ class LoginScene extends eui.Group {
 
         button.anchorOffsetX = button.width / 2;
         button.x = stageW / 2;
-        button.y = 450;
+        button.y = 300;
         button.touchEnabled = true
         button.addEventListener("touchTap", this.login, this)
 

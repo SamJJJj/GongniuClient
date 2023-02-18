@@ -89,7 +89,7 @@ class GameScene extends eui.Group {
         this.readyButton.width = 100;
         this.readyButton.height = 60;
         this.readyButton.horizontalCenter = 0;
-        this.readyButton.verticalCenter = 160;
+        this.readyButton.bottom = 100;
         this.readyButton.addEventListener("touchTap", this.readyButtonHanler, this);
 
         this.leaveButton = new eui.Image();
@@ -111,8 +111,8 @@ class GameScene extends eui.Group {
 
     private addAvatars() {
         let i = 0;
-        let width = 80;
-        let height = 80;
+        let width = 60;
+        let height = 60;
         for (i = 0; i < 4; ++i) {
             let avartar = new eui.Image();
             avartar.width = width;
@@ -122,14 +122,23 @@ class GameScene extends eui.Group {
         }
         // 0 代表自己 1 下家， 2 ...
         // 布局
-        this.avartars[0].verticalCenter = 250;
+        // this.avartars[0].verticalCenter = 250;
+        // this.avartars[0].horizontalCenter = 0;
+        // this.avartars[1].verticalCenter = 0;
+        // this.avartars[1].horizontalCenter = 450;
+        // this.avartars[2].verticalCenter = -250;
+        // this.avartars[2].horizontalCenter = 0;
+        // this.avartars[3].verticalCenter = 0;
+        // this.avartars[3].horizontalCenter = -450;
+
+        this.avartars[0].bottom = 30;
         this.avartars[0].horizontalCenter = 0;
         this.avartars[1].verticalCenter = 0;
-        this.avartars[1].horizontalCenter = 450;
-        this.avartars[2].verticalCenter = -250;
+        this.avartars[1].right = 20;
+        this.avartars[2].top = 20;
         this.avartars[2].horizontalCenter = 0;
         this.avartars[3].verticalCenter = 0;
-        this.avartars[3].horizontalCenter = -450;
+        this.avartars[3].left = 20;
 
         for (i = 0; i < 4; ++i) {
             this.addChild(this.avartars[i]);
@@ -156,14 +165,14 @@ class GameScene extends eui.Group {
         // 布局
         // 0 代表自己 1 下家， 2 ...
         // 布局
-        this.readyIcons[0].verticalCenter = 250;
+        this.readyIcons[0].bottom = 30;
         this.readyIcons[0].horizontalCenter = 100;
         this.readyIcons[1].verticalCenter = -100;
-        this.readyIcons[1].horizontalCenter = 450;
-        this.readyIcons[2].verticalCenter = -250;
+        this.readyIcons[1].right = 20;
+        this.readyIcons[2].top = 20;
         this.readyIcons[2].horizontalCenter = -100;
         this.readyIcons[3].verticalCenter = 100;
-        this.readyIcons[3].horizontalCenter = -450;
+        this.readyIcons[3].left = 20;
 
         for (i = 0; i < 4; ++i) {
             this.addChild(this.readyIcons[i]);
@@ -185,14 +194,14 @@ class GameScene extends eui.Group {
             console.log("arrows initiated: i:", i, "icon:", icon);
         }
 
-        this.playingArrows[0].verticalCenter = 150;
+        this.playingArrows[0].bottom = 90;
         this.playingArrows[0].horizontalCenter = 0;
         this.playingArrows[1].verticalCenter = 0;
-        this.playingArrows[1].horizontalCenter = 350;
-        this.playingArrows[2].verticalCenter = -150;
+        this.playingArrows[1].right = 90;
+        this.playingArrows[2].top = 90;
         this.playingArrows[2].horizontalCenter = 0;
         this.playingArrows[3].verticalCenter = 0;
-        this.playingArrows[3].horizontalCenter = -350;
+        this.playingArrows[3].left = 90;
 
         for (i = 0; i < 4; ++i) {
             this.addChild(this.playingArrows[i]);
@@ -208,14 +217,14 @@ class GameScene extends eui.Group {
             label.visible = false;
             this.userNameLabels[i] = label
         }
-        this.userNameLabels[0].verticalCenter = 300;
+        this.userNameLabels[0].bottom = 0;
         this.userNameLabels[0].horizontalCenter = 0;
         this.userNameLabels[1].verticalCenter = 50;
-        this.userNameLabels[1].horizontalCenter = 450;
-        this.userNameLabels[2].verticalCenter = -200;
+        this.userNameLabels[1].right = 20;
+        this.userNameLabels[2].top = 80;
         this.userNameLabels[2].horizontalCenter = 0;
         this.userNameLabels[3].verticalCenter = 50;
-        this.userNameLabels[3].horizontalCenter = -450;
+        this.userNameLabels[3].left = 20;
 
         for (i = 0; i < 4; ++i) {
             this.addChild(this.userNameLabels[i]);
@@ -511,7 +520,6 @@ class GameScene extends eui.Group {
         for (let i = 0; i < 4; ++i) {
             if (i == playSeat) {
                 this.playingArrows[i].visible = true;
-                console.log("arrows: i ", i, " arrow: ", this.playingArrows[i]);
             } else {
                 this.playingArrows[i].visible = false;
             }

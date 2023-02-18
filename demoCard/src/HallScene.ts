@@ -38,9 +38,9 @@ class HallScene extends eui.Group {
         this.addChild(backgroud)
 
         this.group = new eui.Group();
-        this.group.width = stageW;
-        this.group.height = 300;
-        this.group.y = 400;
+        this.group.percentWidth = 100;
+        this.group.percentHeight = 40;
+        this.group.bottom = 0;
 
         let createButton = new eui.Image();
         createButton.source = RES.getRes("create_game_png");

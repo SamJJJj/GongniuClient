@@ -52,8 +52,6 @@ class Main extends eui.UILayer {
         })
     }
 
-    public static userInfo;
-
     protected createGameScene(): void {
         SceneManager.Instance.rootLayer = this;
         let s1 = new LoginScene();
@@ -63,15 +61,28 @@ class Main extends eui.UILayer {
 
     private async runGame() {
         await this.loadResource()
-        WebUtil.default().connect("ws://127.0.0.1:8090/ws")
+        // WebUtil.default().connect("ws://127.0.0.1:8090/ws")
+        WebUtil.default().connect("ws://192.168.0.100:8090/ws")
         WebUtil.default().setReceiveCallback(Router.globalCallback, Router)
-        let info = await platform.getUserInfo();
+        await platform.login();
+        console.log("login --- ");
+        console.log(platform)
+        let info = { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6) }
         Global.Instance.setUserInfo(info);
         var login = new LoginScene()
         login.width = this.stage.width
         login.height = this.stage.height
         SceneManager.Instance.rootLayer = this;
+        console.log("entering login scene");
         SceneManager.Instance.changeScene(login)
+    }
+
+    private randomString(length) {
+        var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var result = '';
+        for (var i = length; i > 0; --i)
+            result += str[Math.floor(Math.random() * str.length)];
+        return result;
     }
 
     private async loadResource() {

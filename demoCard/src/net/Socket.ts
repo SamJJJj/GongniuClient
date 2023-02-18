@@ -49,14 +49,14 @@ class WebUtil {
     }
 
     private start() {
-        this.timeout = setTimeout(function () {
-            let hb = Router.genJsonRequest("heartbeat", {});
-            this.send(hb);
-            this.serverTimeout = setTimeout(function () {
-                console.log("heat beat expired")
-                this.socket.close();
-            }, 360)
-        }, 180)
+        // this.timeout = setTimeout(function () {
+        //     let hb = Router.genJsonRequest("heartbeat", {});
+        //     WebUtil.default().send(hb);
+        //     this.serverTimeout = setTimeout(function () {
+        //         console.log("heat beat expired")
+        // this.socket.close();
+        //     }, 360)
+        // }, 180)
     }
 
     private onReceiveMessage(e: egret.Event): void {
