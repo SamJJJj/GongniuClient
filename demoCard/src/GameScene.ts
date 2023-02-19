@@ -144,7 +144,7 @@ class GameScene extends eui.Group {
             this.addChild(this.avartars[i]);
             if (i == 0) {
                 this.avartars[i].visible = true;
-                this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", i);
+                this.loadImageForSeat(Global.Instance.userInfo.avatarUrl, i);
             }
         }
     }
@@ -242,8 +242,8 @@ class GameScene extends eui.Group {
         for (let player of Global.Instance.roomInfo.players) {
             let seat = (player.seat - dis + 4) % 4;
             this.avartars[seat].visible = true;
-            // this.loadImageForSeat(player.user_info.avatar_url, seat);
-            this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", seat);
+            this.loadImageForSeat(player.user_info.avatar_url, seat);
+            // this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", seat);
             if (player.is_ready) {
                 this.readyIcons[seat].visible = true;
             }

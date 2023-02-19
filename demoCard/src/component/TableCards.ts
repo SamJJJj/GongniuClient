@@ -39,5 +39,7 @@ class TableCards extends eui.Group {
 
     public clear() {
         this.removeChildren();
+        this.lastLeft = 0;
+        this.lastTop = 0;
     }
 }

@@ -3,6 +3,12 @@ type UserInfo = {
     avatar_url: string;
 }
 
+type CurrUserInfo = {
+    nickName: string;
+    avatarUrl: string;
+    userId: string;
+}
+
 type PlayerInfo = {
     user_info: UserInfo;
     seat: number;
@@ -28,9 +34,18 @@ class Global {
 
     constructor() {
         this.roomInfo = { roomId: '0', currSeat: 0, masterSeat: 0, players: [] };
+        this.userInfo = { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6), avatarUrl: "" }
     }
 
-    public userInfo;
+    private randomString(length) {
+        var str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var result = '';
+        for (var i = length; i > 0; --i)
+            result += str[Math.floor(Math.random() * str.length)];
+        return result;
+    }
+
+    public userInfo: CurrUserInfo;
 
     public roomInfo: RoomInfo;
 

@@ -79,9 +79,9 @@ var HallScene = (function (_super) {
         backgroud.height = stageH;
         this.addChild(backgroud);
         this.group = new eui.Group();
-        this.group.width = stageW;
-        this.group.height = 300;
-        this.group.y = 400;
+        this.group.percentWidth = 100;
+        this.group.percentHeight = 40;
+        this.group.bottom = 0;
         var createButton = new eui.Image();
         createButton.source = RES.getRes("create_game_png");
         var joinButton = new eui.Image();
@@ -92,7 +92,8 @@ var HallScene = (function (_super) {
         joinButton.addEventListener("touchTap", this.joinRoom, this);
         var status = new StatusBar();
         // 加载头像图片(要换成服务端下发的)
-        status.loadImage("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png");
+        // status.loadImage("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png");
+        status.loadImage(Global.Instance.userInfo.avatarUrl);
         // Global.Instance.userInfo.nickName
         status.x = 10;
         status.y = 10;
@@ -163,7 +164,7 @@ var HallScene = (function (_super) {
             Global.Instance.roomInfo.roomId = info.room_id;
             Global.Instance.roomInfo.players.push({
                 user_info: {
-                    nick_name: Global.Instance.userInfo.userName,
+                    nick_name: Global.Instance.userInfo.nickName,
                     avatar_url: "",
                 },
                 seat: 0,

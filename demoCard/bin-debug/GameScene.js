@@ -133,7 +133,7 @@ var GameScene = (function (_super) {
         this.readyButton.width = 100;
         this.readyButton.height = 60;
         this.readyButton.horizontalCenter = 0;
-        this.readyButton.verticalCenter = 160;
+        this.readyButton.bottom = 100;
         this.readyButton.addEventListener("touchTap", this.readyButtonHanler, this);
         this.leaveButton = new eui.Image();
         this.leaveButton.source = RES.getRes("close");
@@ -152,8 +152,8 @@ var GameScene = (function (_super) {
     };
     GameScene.prototype.addAvatars = function () {
         var i = 0;
-        var width = 80;
-        var height = 80;
+        var width = 60;
+        var height = 60;
         for (i = 0; i < 4; ++i) {
             var avartar = new eui.Image();
             avartar.width = width;
@@ -163,19 +163,27 @@ var GameScene = (function (_super) {
         }
         // 0 代表自己 1 下家， 2 ...
         // 布局
-        this.avartars[0].verticalCenter = 250;
+        // this.avartars[0].verticalCenter = 250;
+        // this.avartars[0].horizontalCenter = 0;
+        // this.avartars[1].verticalCenter = 0;
+        // this.avartars[1].horizontalCenter = 450;
+        // this.avartars[2].verticalCenter = -250;
+        // this.avartars[2].horizontalCenter = 0;
+        // this.avartars[3].verticalCenter = 0;
+        // this.avartars[3].horizontalCenter = -450;
+        this.avartars[0].bottom = 30;
         this.avartars[0].horizontalCenter = 0;
         this.avartars[1].verticalCenter = 0;
-        this.avartars[1].horizontalCenter = 450;
-        this.avartars[2].verticalCenter = -250;
+        this.avartars[1].right = 20;
+        this.avartars[2].top = 20;
         this.avartars[2].horizontalCenter = 0;
         this.avartars[3].verticalCenter = 0;
-        this.avartars[3].horizontalCenter = -450;
+        this.avartars[3].left = 20;
         for (i = 0; i < 4; ++i) {
             this.addChild(this.avartars[i]);
             if (i == 0) {
                 this.avartars[i].visible = true;
-                this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", i);
+                this.loadImageForSeat(Global.Instance.userInfo.avatarUrl, i);
             }
         }
     };
@@ -195,14 +203,14 @@ var GameScene = (function (_super) {
         // 布局
         // 0 代表自己 1 下家， 2 ...
         // 布局
-        this.readyIcons[0].verticalCenter = 250;
+        this.readyIcons[0].bottom = 30;
         this.readyIcons[0].horizontalCenter = 100;
         this.readyIcons[1].verticalCenter = -100;
-        this.readyIcons[1].horizontalCenter = 450;
-        this.readyIcons[2].verticalCenter = -250;
+        this.readyIcons[1].right = 20;
+        this.readyIcons[2].top = 20;
         this.readyIcons[2].horizontalCenter = -100;
         this.readyIcons[3].verticalCenter = 100;
-        this.readyIcons[3].horizontalCenter = -450;
+        this.readyIcons[3].left = 20;
         for (i = 0; i < 4; ++i) {
             this.addChild(this.readyIcons[i]);
         }
@@ -221,14 +229,14 @@ var GameScene = (function (_super) {
             this.playingArrows[i] = icon;
             console.log("arrows initiated: i:", i, "icon:", icon);
         }
-        this.playingArrows[0].verticalCenter = 150;
+        this.playingArrows[0].bottom = 90;
         this.playingArrows[0].horizontalCenter = 0;
         this.playingArrows[1].verticalCenter = 0;
-        this.playingArrows[1].horizontalCenter = 350;
-        this.playingArrows[2].verticalCenter = -150;
+        this.playingArrows[1].right = 90;
+        this.playingArrows[2].top = 90;
         this.playingArrows[2].horizontalCenter = 0;
         this.playingArrows[3].verticalCenter = 0;
-        this.playingArrows[3].horizontalCenter = -350;
+        this.playingArrows[3].left = 90;
         for (i = 0; i < 4; ++i) {
             this.addChild(this.playingArrows[i]);
         }
@@ -242,14 +250,14 @@ var GameScene = (function (_super) {
             label.visible = false;
             this.userNameLabels[i] = label;
         }
-        this.userNameLabels[0].verticalCenter = 300;
+        this.userNameLabels[0].bottom = 0;
         this.userNameLabels[0].horizontalCenter = 0;
         this.userNameLabels[1].verticalCenter = 50;
-        this.userNameLabels[1].horizontalCenter = 450;
-        this.userNameLabels[2].verticalCenter = -200;
+        this.userNameLabels[1].right = 20;
+        this.userNameLabels[2].top = 80;
         this.userNameLabels[2].horizontalCenter = 0;
         this.userNameLabels[3].verticalCenter = 50;
-        this.userNameLabels[3].horizontalCenter = -450;
+        this.userNameLabels[3].left = 20;
         for (i = 0; i < 4; ++i) {
             this.addChild(this.userNameLabels[i]);
         }
@@ -266,8 +274,8 @@ var GameScene = (function (_super) {
             var player = _a[_i];
             var seat = (player.seat - dis + 4) % 4;
             this.avartars[seat].visible = true;
-            // this.loadImageForSeat(player.user_info.avatar_url, seat);
-            this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", seat);
+            this.loadImageForSeat(player.user_info.avatar_url, seat);
+            // this.loadImageForSeat("http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png", seat);
             if (player.is_ready) {
                 this.readyIcons[seat].visible = true;
             }
@@ -347,7 +355,7 @@ var GameScene = (function (_super) {
             hall.width = this.stage.width;
             hall.height = this.stage.height;
             // 置空房间信息
-            Global.Instance.roomInfo = null;
+            // Global.Instance.roomInfo = null;
             SceneManager.Instance.pushScene(hall);
         }
         else {
@@ -533,7 +541,6 @@ var GameScene = (function (_super) {
         for (var i = 0; i < 4; ++i) {
             if (i == playSeat) {
                 this.playingArrows[i].visible = true;
-                console.log("arrows: i ", i, " arrow: ", this.playingArrows[i]);
             }
             else {
                 this.playingArrows[i].visible = false;

@@ -10,15 +10,15 @@ declare interface Platform {
 
     login(): Promise<any>
 
-    getUserProfile(): Promise<any>
+    getUserProfile()
 }
 
 class DebugPlatform implements Platform {
     async getUserInfo() {
         return { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6) }
     }
-    async getUserProfile() {
-
+    getUserProfile() {
+        Global.Instance.userInfo = { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6), avatarUrl: "http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png" }
     }
     async login() {
 

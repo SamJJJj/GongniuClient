@@ -51,7 +51,7 @@ class LoginScene extends eui.Group {
             "user_id": Global.Instance.userInfo.userId,
             "account_id": "123456",
             "nick_name": Global.Instance.userInfo.nickName,
-            "avatar_url": "test1.png"
+            "avatar_url": Global.Instance.userInfo.avatarUrl
         });
         WebUtil.default().send(req);
     }

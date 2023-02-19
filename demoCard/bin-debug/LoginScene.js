@@ -81,7 +81,7 @@ var LoginScene = (function (_super) {
         button.height = 100;
         button.anchorOffsetX = button.width / 2;
         button.x = stageW / 2;
-        button.y = 450;
+        button.y = 300;
         button.touchEnabled = true;
         button.addEventListener("touchTap", this.login, this);
         this.addChild(backgroud);
@@ -94,7 +94,7 @@ var LoginScene = (function (_super) {
             "user_id": Global.Instance.userInfo.userId,
             "account_id": "123456",
             "nick_name": Global.Instance.userInfo.nickName,
-            "avatar_url": "test1.png"
+            "avatar_url": Global.Instance.userInfo.avatarUrl
         });
         WebUtil.default().send(req);
     };

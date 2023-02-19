@@ -101,22 +101,28 @@ var Main = (function (_super) {
     };
     Main.prototype.runGame = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var info, login;
+            var login;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.loadResource()];
+                    case 0: return [4 /*yield*/, this.loadResource()
+                        // WebUtil.default().connect("ws://127.0.0.1:8090/ws")
+                    ];
                     case 1:
                         _a.sent();
-                        WebUtil.default().connect("ws://127.0.0.1:8090/ws");
+                        // WebUtil.default().connect("ws://127.0.0.1:8090/ws")
+                        WebUtil.default().connect("ws://192.168.31.121/ws");
                         WebUtil.default().setReceiveCallback(Router.globalCallback, Router);
-                        return [4 /*yield*/, platform.getUserInfo()];
+                        return [4 /*yield*/, platform.login()];
                     case 2:
-                        info = _a.sent();
-                        Global.Instance.setUserInfo(info);
+                        _a.sent();
+                        platform.getUserProfile();
+                        console.log("login --- ");
+                        console.log(platform);
                         login = new LoginScene();
                         login.width = this.stage.width;
                         login.height = this.stage.height;
                         SceneManager.Instance.rootLayer = this;
+                        console.log("entering login scene");
                         SceneManager.Instance.changeScene(login);
                         return [2 /*return*/];
                 }

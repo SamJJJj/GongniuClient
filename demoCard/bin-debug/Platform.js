@@ -46,6 +46,9 @@ var DebugPlatform = (function () {
             });
         });
     };
+    DebugPlatform.prototype.getUserProfile = function () {
+        Global.Instance.userInfo = { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6), avatarUrl: "http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png" };
+    };
     DebugPlatform.prototype.login = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
