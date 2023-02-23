@@ -66,6 +66,8 @@ class GameScene extends eui.Group {
     private lastPlayedCard = -1;
     private playButton: eui.Image;
     private disableButton: eui.Image;
+    private headButton: eui.Image;
+    private tailButton: eui.Image;
 
     protected createChildren(): void {
         super.createChildren();
@@ -392,9 +394,14 @@ class GameScene extends eui.Group {
                     }
                     ++i;
                 }
-                console.log(e.target);
-                console.log(i);
                 this.selectedIdx = i;
+                for (let card of cards) {
+                    if (e.target == card) {
+                        card.top = -20;
+                    } else {
+                        card.top = 0;
+                    }
+                }
             }, this);
             cards[i++] = image;
         }
@@ -420,6 +427,16 @@ class GameScene extends eui.Group {
         this.addChild(this.playButton);
         this.playButton.addEventListener("touchTap", this.playButtonHandler, this);
 
+        this.headButton = new eui.Image();
+        this.headButton.source = RES.getRes("on_head");
+        this.headButton.top = 530;
+        this.headButton.left = 300;
+        this.headButton.width = 80;
+        this.headButton.height = 80;
+        this.headButton.visible = false;
+        this.addChild(this.headButton);
+        this.headButton.addEventListener("touchTap", this.headButtonHandler, this);
+
         this.disableButton = new eui.Image();
         this.disableButton.source = RES.getRes("disable_card");
         this.disableButton.top = 530;
@@ -429,6 +446,16 @@ class GameScene extends eui.Group {
         this.disableButton.visible = false;
         this.addChild(this.disableButton);
         this.disableButton.addEventListener("touchTap", this.disableButtonHandler, this);
+
+        this.tailButton = new eui.Image();
+        this.tailButton.source = RES.getRes("on_tail");
+        this.tailButton.top = 530;
+        this.tailButton.left = 400;
+        this.tailButton.width = 80;
+        this.tailButton.height = 80;
+        this.tailButton.visible = false;
+        this.addChild(this.tailButton);
+        this.tailButton.addEventListener("touchTap", this.tailButtonHandler, this);
 
         this.cardGroups[0] = group;
     }
@@ -445,6 +472,41 @@ class GameScene extends eui.Group {
             "room_id": Global.Instance.roomInfo.roomId,
             "seat": Global.Instance.roomInfo.currSeat,
             "card": this.cards[this.selectedIdx],
+            "on_head": 0
+        })
+        WebUtil.default().send(req);
+    }
+
+    private headButtonHandler() {
+        if (this.selectedIdx == -1) {
+            console.log("no selected card");
+            return
+        }
+        let cmd = Router.cmd.PlayCard;
+        this.lastPlayedCard = this.selectedIdx;
+        let req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+            "seat": Global.Instance.roomInfo.currSeat,
+            "card": this.cards[this.selectedIdx],
+            "on_head": 1
+        })
+        WebUtil.default().send(req);
+    }
+
+    private tailButtonHandler() {
+        if (this.selectedIdx == -1) {
+            console.log("no selected card");
+            return
+        }
+        let cmd = Router.cmd.PlayCard;
+        this.lastPlayedCard = this.selectedIdx;
+        let req = Router.genJsonRequest(cmd, {
+            "user_id": Global.Instance.userInfo.userId,
+            "room_id": Global.Instance.roomInfo.roomId,
+            "seat": Global.Instance.roomInfo.currSeat,
+            "card": this.cards[this.selectedIdx],
+            "on_head": 2
         })
         WebUtil.default().send(req);
     }
@@ -452,16 +514,29 @@ class GameScene extends eui.Group {
     private playCardHandler(data) {
         let resp = data.response;
         let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
+        console.log("play card: ", info);
         if (resp.code == 0) {
-            let icon = new eui.Image();
-            icon.source = RES.getRes("play_card");
-            // icon.alpha = 0.8;
-            icon.width = 40;
-            icon.height = 40;
-            icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x;
-            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y + 20;
-            // 给出过的牌增加标记
-            this.cardGroups[0].addChild(icon);
+            if (info.need_choose_side == true) {
+                this.playButton.visible = false;
+                this.disableButton.visible = false;
+                this.headButton.visible = true;
+                this.tailButton.visible = true;
+                this.cardGroups[0].touchEnabled = false;
+            } else {
+                let icon = new eui.Image();
+                icon.source = RES.getRes("play_card");
+                // icon.alpha = 0.8;
+                icon.width = 40;
+                icon.height = 40;
+                // 给出过的牌增加标记
+                for (let i = 0; i < this.cardGroups[0].numChildren; ++i) {
+                    (this.cardGroups[0].getChildAt(i) as eui.Image).top = 0;
+                }
+                icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x;
+                icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y + 20;
+                this.cardGroups[0].addChild(icon);
+                this.cardGroups[0].touchEnabled = true;
+            }
         } else {
             // 提示失败
             console.log("出牌失败");
@@ -493,6 +568,10 @@ class GameScene extends eui.Group {
             // icon.alpha = 0.8;
             icon.width = 40;
             icon.height = 40;
+            // 恢复位置
+            for (let i = 0; i < this.cardGroups[0].numChildren; ++i) {
+                (this.cardGroups[0].getChildAt(i) as eui.Image).top = 0;
+            }
             icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x
             icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y
             // 给出过的牌增加标记
@@ -530,6 +609,8 @@ class GameScene extends eui.Group {
         } else {
             this.playButton.visible = false;
             this.disableButton.visible = false;
+            this.headButton.visible = false;
+            this.tailButton.visible = false;
         }
 
         if (cards == null) {
