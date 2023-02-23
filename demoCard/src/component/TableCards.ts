@@ -5,7 +5,7 @@ class TableCards extends eui.Group {
     protected createChildren(): void {
         super.createChildren();
     }
-
+    //TODO:  让 card 按点数接起来
     public addCard(card) {
         let maxWidth = 600;
         let cardImg = new eui.Image();
@@ -14,7 +14,7 @@ class TableCards extends eui.Group {
         cardImg.width = 30;
         cardImg.height = 75;
         let dis = 10;
-        if (card.head == card.tail) {
+        if (card.head != card.tail) {
             // 横着放
             cardImg.rotation = -90;
             if (this.lastLeft + cardImg.height + dis > maxWidth) {

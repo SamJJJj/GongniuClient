@@ -541,8 +541,8 @@ class GameScene extends eui.Group {
         console.log(this.tableCards.length);
 
         if ((cards as Array<Card>).length > this.tableCards.length) {
-            for (let i = this.tableCards.length; i < cards.length; ++i) {
-                console.log("i: " + i)
+            this.tableCardGroup.clear();
+            for (let i = 0; i < cards.length; ++i) {
                 this.tableCardGroup.addCard(cards[i]);
             }
             this.tableCards = cards;
@@ -571,9 +571,6 @@ class GameScene extends eui.Group {
             this.disableButton.visible = false;
             this.tableCardGroup.clear();
             this.leaveButton.visible = true;
-            // for (let i = 0; i < 4; ++i) {
-            //     this.removeChild(this.cardGroups[i]);
-            // }
         }
         this.addChild(finish);
         for (let score of scores) {
