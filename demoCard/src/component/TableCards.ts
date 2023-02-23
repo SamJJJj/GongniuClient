@@ -6,17 +6,19 @@ class TableCards extends eui.Group {
         super.createChildren();
     }
     //TODO:  让 card 按点数接起来
-    public addCard(card) {
+    public addCard(card, currRotaion) {
         let maxWidth = 600;
         let cardImg = new eui.Image();
         cardImg.source = RES.getRes("card_" + card.head + "_" + card.tail);
         console.log('img:' + "card_" + card.head + "_" + card.tail)
         cardImg.width = 30;
         cardImg.height = 75;
+        cardImg.rotation = 0;
         let dis = 10;
         if (card.head != card.tail) {
             // 横着放
-            cardImg.rotation = -90;
+            console.log("card rotaion: ", currRotaion, " card:", card);
+            cardImg.rotation = currRotaion;
             if (this.lastLeft + cardImg.height + dis > maxWidth) {
                 this.lastTop += 100;
                 this.lastLeft = 0

@@ -61,6 +61,7 @@ class GameScene extends eui.Group {
     private userNameLabels: eui.Label[] = new Array<eui.Label>(4);
     private cards: Card[];
     private tableCards: Card[] = new Array<Card>(0);
+    private cardRotations: number[] = new Array<number>(0);
     private tableCardGroup: TableCards;
     private selectedIdx = -1;
     private lastPlayedCard = -1;
@@ -589,11 +590,13 @@ class GameScene extends eui.Group {
             console.log(info);
             let playSeat = info.curr_playing_seat;
             let cards = info.curr_cards;
-            this.showOnGamePlaying(playSeat, cards);
+            let lastCard = info.last_card
+            let isHead = info.last_is_head
+            this.showOnGamePlaying(playSeat, cards, lastCard, isHead);
         }
     }
 
-    private showOnGamePlaying(seat, cards) {
+    private showOnGamePlaying(seat, cards, lastCard: Card, isHead: boolean) {
         let dis = Global.Instance.roomInfo.currSeat;
         let playSeat = (seat - dis + 4) % 4;
         for (let i = 0; i < 4; ++i) {
@@ -620,11 +623,46 @@ class GameScene extends eui.Group {
         console.log(cards);
         console.log((cards as Array<Card>).length);
         console.log(this.tableCards.length);
+        let currCards = cards as Array<Card>
 
-        if ((cards as Array<Card>).length > this.tableCards.length) {
+        if (currCards.length > this.tableCards.length) {
+            // 1. 判断在头部/尾部增加
+            let currRotation = 0;
+            if (currCards.length == 1) {
+                // 只有一个
+                if (currCards[0].head != currCards[0].tail) {
+                    currRotation = -90;
+                }
+                this.cardRotations.push(currRotation);
+            } else if (!isHead) {
+                // 在尾部增加了
+                let len = currCards.length
+                if (currCards[len - 1].head != currCards[len - 1].tail) {
+                    if (currCards[len - 1].head == lastCard.tail) {
+                        currRotation = 90;
+                    } else if (currCards[len - 1].tail == lastCard.tail) {
+                        currRotation = -90;
+                    }
+                }
+                this.cardRotations.push(currRotation);
+                console.log("pushed rotation: ", currRotation);
+            } else {
+                // 在头部增加
+                // 2. 判断是否需要旋转(横牌/竖牌)
+                if (currCards[0].head != currCards[0].tail) {
+                    if (currCards[0].head == lastCard.head) {
+                        currRotation = -90;
+                    } else if (currCards[0].tail == lastCard.head) {
+                        currRotation = 90;
+                    }
+                }
+                this.cardRotations.splice(0, 0, currRotation);
+                console.log("pushed rotation on head:", currRotation);
+            }
             this.tableCardGroup.clear();
+            console.log("rotations: ", this.cardRotations)
             for (let i = 0; i < cards.length; ++i) {
-                this.tableCardGroup.addCard(cards[i]);
+                this.tableCardGroup.addCard(cards[i], this.cardRotations[i]);
             }
             this.tableCards = cards;
         }
@@ -650,6 +688,9 @@ class GameScene extends eui.Group {
             }
             this.playButton.visible = false;
             this.disableButton.visible = false;
+            this.headButton.visible = false;
+            this.tailButton.visible = false
+            this.cardRotations = new Array<number>(0)
             this.tableCardGroup.clear();
             this.leaveButton.visible = true;
         }
