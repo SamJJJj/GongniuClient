@@ -346,6 +346,7 @@ class GameScene extends eui.Group {
         for (let icon of this.readyIcons) {
             icon.visible = false;
         }
+        this.leaveButton.visible = false;
         // 获取手牌请求
         let cmd = Router.cmd.GetHandCards;
         let req = Router.genJsonRequest(cmd, {
@@ -672,6 +673,7 @@ class GameScene extends eui.Group {
         let resp = data.response;
         let info = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(egret.Base64Util.decode(resp.data))));
         let scores = info.scores;
+        let cards = info.cards_on_finish
         let finish = new FinishBoard();
         finish.verticalCenter = 0;
         finish.horizontalCenter = 0;
@@ -695,8 +697,9 @@ class GameScene extends eui.Group {
             this.leaveButton.visible = true;
         }
         this.addChild(finish);
-        for (let score of scores) {
-            finish.addScore(score.seat, score.score);
+        console.log(info)
+        for (let i = 0; i < 4; ++i) {
+            finish.addScore(scores[i].seat, scores[i].score, cards[i].played_cards, cards[i].disabled_cards, cards[i].hand_cards);
         }
     }
 }
