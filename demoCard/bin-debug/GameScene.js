@@ -138,8 +138,8 @@ var GameScene = (function (_super) {
         this.readyButton.addEventListener("touchTap", this.readyButtonHanler, this);
         this.leaveButton = new eui.Image();
         this.leaveButton.source = RES.getRes("close");
-        this.leaveButton.right = 0;
-        this.leaveButton.top = 0;
+        this.leaveButton.right = 50;
+        this.leaveButton.top = 50;
         this.leaveButton.visible = false;
         this.leaveButton.addEventListener("touchTap", this.leaveHandler, this);
         this.addChild(this.readyButton);
@@ -301,6 +301,14 @@ var GameScene = (function (_super) {
             // 切换到 room 场景
             Global.Instance.roomInfo.masterSeat = info.master_seat;
             Global.Instance.roomInfo.players = info.players;
+            console.log("len: ", Global.Instance.roomInfo.players.length);
+            for (var i = 0; i < Global.Instance.roomInfo.players.length; ++i) {
+                if (Global.Instance.roomInfo.players[i].seat == Global.Instance.roomInfo.currSeat) {
+                    continue;
+                }
+                Global.Instance.roomInfo.players[i].user_info.nick_name = decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name);
+                console.log("decoded: ", decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name));
+            }
         }
         this.updateRoomMemberInfo();
     };
@@ -338,6 +346,8 @@ var GameScene = (function (_super) {
         else {
             // 准备请求失败，show tips
             console.log("ready request error");
+            var toast = new Toast("准备失败，请重试！");
+            toast.show(this, 500, 300);
         }
     };
     GameScene.prototype.leaveHandler = function () {
@@ -360,6 +370,8 @@ var GameScene = (function (_super) {
             SceneManager.Instance.pushScene(hall);
         }
         else {
+            var toast = new Toast("离开房间失败请重试！");
+            toast.show(this, 500, 300);
             console.log("leave Room failed");
         }
     };
@@ -391,7 +403,8 @@ var GameScene = (function (_super) {
             this.checkGetCard();
         }
         else {
-            console.log("get card error");
+            var toast = new Toast("获取手牌失败");
+            toast.show(this, 500, 300);
         }
     };
     GameScene.prototype.checkGetCard = function () {
@@ -562,7 +575,8 @@ var GameScene = (function (_super) {
         }
         else {
             // 提示失败
-            console.log("出牌失败");
+            var toast = new Toast("出牌不符合规则！");
+            toast.show(this, 500, 300);
         }
     };
     GameScene.prototype.disableButtonHandler = function () {
@@ -594,12 +608,14 @@ var GameScene = (function (_super) {
                 this.cardGroups[0].getChildAt(i).top = 0;
             }
             icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x;
-            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y;
+            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y + 20;
             // 给出过的牌增加标记
             this.cardGroups[0].addChild(icon);
         }
         else {
             // 提示失败
+            var toast = new Toast("扣牌不符合规则！");
+            toast.show(this, 500, 300);
             console.log("出牌失败");
         }
     };

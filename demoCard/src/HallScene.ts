@@ -198,6 +198,13 @@ class HallScene extends eui.Group {
             Global.Instance.roomInfo.currSeat = info.current_seat;
             Global.Instance.roomInfo.masterSeat = info.master_seat;
             Global.Instance.roomInfo.players = info.players;
+            for (let i = 0; i < Global.Instance.roomInfo.players.length; ++i) {
+                if (Global.Instance.roomInfo.players[i].seat == Global.Instance.roomInfo.currSeat) {
+                    continue;
+                }
+                Global.Instance.roomInfo.players[i].user_info.nick_name = decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name)
+                console.log("decoded: ", decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name));
+            }
             SceneManager.Instance.changeScene(game);
         } else {
             let toast = new Toast("创建房间失败, 请重试")

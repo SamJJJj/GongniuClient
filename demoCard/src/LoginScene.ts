@@ -50,7 +50,7 @@ class LoginScene extends eui.Group {
         let req = Router.genJsonRequest(loginCmd, {
             "user_id": Global.Instance.userInfo.userId,
             "account_id": "123456",
-            "nick_name": Global.Instance.userInfo.nickName,
+            "nick_name": encodeURIComponent(Global.Instance.userInfo.nickName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "")),
             "avatar_url": Global.Instance.userInfo.avatarUrl
         });
         WebUtil.default().send(req);

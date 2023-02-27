@@ -176,7 +176,8 @@ var HallScene = (function (_super) {
             SceneManager.Instance.changeScene(game);
         }
         else {
-            console.log("创建房间失败");
+            var toast = new Toast("创建房间失败, 请重试");
+            toast.show(this, 500, 300);
             // 展示错误信息，需要手动重试
         }
     };
@@ -223,8 +224,9 @@ var HallScene = (function (_super) {
             SceneManager.Instance.changeScene(game);
         }
         else {
+            var toast = new Toast("创建房间失败, 请重试");
+            toast.show(this, 500, 300);
             console.log("创建房间失败");
-            // 展示错误信息，需要手动重试
         }
     };
     return HallScene;

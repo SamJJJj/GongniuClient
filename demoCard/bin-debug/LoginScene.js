@@ -93,7 +93,7 @@ var LoginScene = (function (_super) {
         var req = Router.genJsonRequest(loginCmd, {
             "user_id": Global.Instance.userInfo.userId,
             "account_id": "123456",
-            "nick_name": Global.Instance.userInfo.nickName,
+            "nick_name": encodeURIComponent(Global.Instance.userInfo.nickName.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "")),
             "avatar_url": Global.Instance.userInfo.avatarUrl
         });
         WebUtil.default().send(req);
@@ -110,6 +110,8 @@ var LoginScene = (function (_super) {
             SceneManager.Instance.changeScene(hall);
         }
         else {
+            var toast = new Toast("登录失败, 请重试");
+            toast.show(this, 500, 300);
             console.log("登录失败");
             // 展示错误信息，重试
         }

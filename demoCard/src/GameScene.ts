@@ -273,8 +273,16 @@ class GameScene extends eui.Group {
             // 切换到 room 场景
             Global.Instance.roomInfo.masterSeat = info.master_seat;
             Global.Instance.roomInfo.players = info.players;
+            console.log("len: ", Global.Instance.roomInfo.players.length);
+            for (let i = 0; i < Global.Instance.roomInfo.players.length; ++i) {
+                if (Global.Instance.roomInfo.players[i].seat == Global.Instance.roomInfo.currSeat) {
+                    continue;
+                }
+                Global.Instance.roomInfo.players[i].user_info.nick_name = decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name)
+                console.log("decoded: ", decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name));
+            }
         }
-        this.updateRoomMemberInfo()
+        this.updateRoomMemberInfo();
     }
 
     private loadImageForSeat(url, i) {
