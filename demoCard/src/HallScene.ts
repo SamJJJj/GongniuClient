@@ -150,7 +150,8 @@ class HallScene extends eui.Group {
             game.height = this.stage.height;
             SceneManager.Instance.changeScene(game);
         } else {
-            console.log("创建房间失败");
+            let toast = new Toast("创建房间失败, 请重试")
+            toast.show(this, 500, 300);
             // 展示错误信息，需要手动重试
         }
     }
@@ -199,8 +200,9 @@ class HallScene extends eui.Group {
             Global.Instance.roomInfo.players = info.players;
             SceneManager.Instance.changeScene(game);
         } else {
+            let toast = new Toast("创建房间失败, 请重试")
+            toast.show(this, 500, 300);
             console.log("创建房间失败");
-            // 展示错误信息，需要手动重试
         }
     }
 }

@@ -67,6 +67,8 @@ class LoginScene extends eui.Group {
             hall.height = this.stage.height
             SceneManager.Instance.changeScene(hall)
         } else {
+            let toast = new Toast("登录失败, 请重试")
+            toast.show(this, 500, 300);
             console.log("登录失败")
             // 展示错误信息，重试
         }

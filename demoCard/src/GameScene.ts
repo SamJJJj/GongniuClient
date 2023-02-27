@@ -97,8 +97,8 @@ class GameScene extends eui.Group {
 
         this.leaveButton = new eui.Image();
         this.leaveButton.source = RES.getRes("close");
-        this.leaveButton.right = 0;
-        this.leaveButton.top = 0;
+        this.leaveButton.right = 50;
+        this.leaveButton.top = 50;
         this.leaveButton.visible = false;
         this.leaveButton.addEventListener("touchTap", this.leaveHandler, this);
 
@@ -313,6 +313,8 @@ class GameScene extends eui.Group {
         } else {
             // 准备请求失败，show tips
             console.log("ready request error");
+            let toast = new Toast("准备失败，请重试！")
+            toast.show(this, 500, 300);
         }
     }
 
@@ -336,6 +338,8 @@ class GameScene extends eui.Group {
             // Global.Instance.roomInfo = null;
             SceneManager.Instance.pushScene(hall);
         } else {
+            let toast = new Toast("离开房间失败请重试！")
+            toast.show(this, 500, 300);
             console.log("leave Room failed");
         }
     }
@@ -367,7 +371,8 @@ class GameScene extends eui.Group {
             this.showCards();
             this.checkGetCard();
         } else {
-            console.log("get card error");
+            let toast = new Toast("获取手牌失败")
+            toast.show(this, 500, 300);
         }
     }
 
@@ -541,7 +546,8 @@ class GameScene extends eui.Group {
             }
         } else {
             // 提示失败
-            console.log("出牌失败");
+            let toast = new Toast("出牌不符合规则！")
+            toast.show(this, 500, 300);
         }
     }
 
@@ -575,11 +581,13 @@ class GameScene extends eui.Group {
                 (this.cardGroups[0].getChildAt(i) as eui.Image).top = 0;
             }
             icon.x = this.cardGroups[0].getChildAt(this.lastPlayedCard).x
-            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y
+            icon.y = this.cardGroups[0].getChildAt(this.lastPlayedCard).y + 20;
             // 给出过的牌增加标记
             this.cardGroups[0].addChild(icon);
         } else {
             // 提示失败
+            let toast = new Toast("扣牌不符合规则！")
+            toast.show(this, 500, 300);
             console.log("出牌失败");
         }
     }
