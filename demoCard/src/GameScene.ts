@@ -197,14 +197,14 @@ class GameScene extends eui.Group {
             console.log("arrows initiated: i:", i, "icon:", icon);
         }
 
-        this.playingArrows[0].bottom = 90;
+        this.playingArrows[0].bottom = 150;
         this.playingArrows[0].horizontalCenter = 0;
         this.playingArrows[1].verticalCenter = 0;
-        this.playingArrows[1].right = 90;
-        this.playingArrows[2].top = 90;
+        this.playingArrows[1].right = 150;
+        this.playingArrows[2].top = 150;
         this.playingArrows[2].horizontalCenter = 0;
         this.playingArrows[3].verticalCenter = 0;
-        this.playingArrows[3].left = 90;
+        this.playingArrows[3].left = 150;
 
         for (i = 0; i < 4; ++i) {
             this.addChild(this.playingArrows[i]);
@@ -399,8 +399,8 @@ class GameScene extends eui.Group {
         for (let card of this.cards) {
             let image = new eui.Image();
             image.source = RES.getRes("card_" + card.head + "_" + card.tail);
-            image.height = 100;
-            image.width = 40;
+            image.height = 80;
+            image.width = 32;
             image.addEventListener("touchTap", (e) => {
                 let i = 0;
                 for (let card of cards) {
@@ -423,7 +423,7 @@ class GameScene extends eui.Group {
         let initleft = 0;
         let group = new eui.Group()
         group.left = 300;
-        group.top = 430;
+        group.bottom = 110;
         for (let card of cards) {
             group.addChild(card);
             card.left = initleft;
@@ -434,40 +434,40 @@ class GameScene extends eui.Group {
 
         this.playButton = new eui.Image();
         this.playButton.source = RES.getRes("play_card");
-        this.playButton.top = 530;
+        this.playButton.bottom = 50;
         this.playButton.left = 300;
-        this.playButton.width = 80;
-        this.playButton.height = 80;
+        this.playButton.width = 60;
+        this.playButton.height = 60;
         this.playButton.visible = false;
         this.addChild(this.playButton);
         this.playButton.addEventListener("touchTap", this.playButtonHandler, this);
 
         this.headButton = new eui.Image();
         this.headButton.source = RES.getRes("on_head");
-        this.headButton.top = 530;
+        this.headButton.bottom = 50;
         this.headButton.left = 300;
-        this.headButton.width = 80;
-        this.headButton.height = 80;
+        this.headButton.width = 60;
+        this.headButton.height = 60;
         this.headButton.visible = false;
         this.addChild(this.headButton);
         this.headButton.addEventListener("touchTap", this.headButtonHandler, this);
 
         this.disableButton = new eui.Image();
         this.disableButton.source = RES.getRes("disable_card");
-        this.disableButton.top = 530;
+        this.disableButton.bottom = 50;
         this.disableButton.left = 400;
-        this.disableButton.width = 80;
-        this.disableButton.height = 80;
+        this.disableButton.width = 60;
+        this.disableButton.height = 60;
         this.disableButton.visible = false;
         this.addChild(this.disableButton);
         this.disableButton.addEventListener("touchTap", this.disableButtonHandler, this);
 
         this.tailButton = new eui.Image();
         this.tailButton.source = RES.getRes("on_tail");
-        this.tailButton.top = 530;
+        this.tailButton.bottom = 50;
         this.tailButton.left = 400;
-        this.tailButton.width = 80;
-        this.tailButton.height = 80;
+        this.tailButton.width = 60;
+        this.tailButton.height = 60;
         this.tailButton.visible = false;
         this.addChild(this.tailButton);
         this.tailButton.addEventListener("touchTap", this.tailButtonHandler, this);
@@ -541,8 +541,8 @@ class GameScene extends eui.Group {
                 let icon = new eui.Image();
                 icon.source = RES.getRes("play_card");
                 // icon.alpha = 0.8;
-                icon.width = 40;
-                icon.height = 40;
+                icon.width = 30;
+                icon.height = 30;
                 // 给出过的牌增加标记
                 for (let i = 0; i < this.cardGroups[0].numChildren; ++i) {
                     (this.cardGroups[0].getChildAt(i) as eui.Image).top = 0;
@@ -582,8 +582,8 @@ class GameScene extends eui.Group {
             let icon = new eui.Image();
             icon.source = RES.getRes("disable_card");
             // icon.alpha = 0.8;
-            icon.width = 40;
-            icon.height = 40;
+            icon.width = 30;
+            icon.height = 30;
             // 恢复位置
             for (let i = 0; i < this.cardGroups[0].numChildren; ++i) {
                 (this.cardGroups[0].getChildAt(i) as eui.Image).top = 0;

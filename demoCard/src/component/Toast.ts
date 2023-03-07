@@ -18,6 +18,7 @@ class Toast extends egret.DisplayObjectContainer {
         this._text.textAlign = egret.HorizontalAlign.CENTER;
         this._text.verticalAlign = egret.VerticalAlign.MIDDLE;
         this._text.text = text;
+        console.log("Toast showed, text: ", text)
         this.addChild(this._text);
     }
 
@@ -25,6 +26,7 @@ class Toast extends egret.DisplayObjectContainer {
         this.x = x;
         this.y = y;
         parent.addChild(this);
+        console.log("Toast showed, text: ", x, " ", y);
         setTimeout(() => {
             this.parent.removeChild(this);
         }, 2000);

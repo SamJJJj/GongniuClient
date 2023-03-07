@@ -39,8 +39,8 @@ class HallScene extends eui.Group {
 
         this.group = new eui.Group();
         this.group.percentWidth = 100;
-        this.group.percentHeight = 40;
-        this.group.bottom = 0;
+        this.group.percentHeight = 30;
+        this.group.bottom = 50;
 
         let createButton = new eui.Image();
         createButton.source = RES.getRes("create_game_png");
@@ -171,9 +171,15 @@ class HallScene extends eui.Group {
         let id = this.editor.text;
         if (id.length != 6) {
             // 位数不够提示
+            let toast = new Toast("加入房间失败, 请重试")
+            toast.show(this, 500, 300);
+            console.log("加入房间失败");
             return
         } else if (!reg.test(id)) {
             // 不是全是数字提示
+            let toast = new Toast("加入房间失败, 请重试")
+            toast.show(this, 500, 300);
+            console.log("加入房间失败");
             return
         }
         let cmd = Router.cmd.JoinRoom;
@@ -207,9 +213,9 @@ class HallScene extends eui.Group {
             }
             SceneManager.Instance.changeScene(game);
         } else {
-            let toast = new Toast("创建房间失败, 请重试")
+            let toast = new Toast("加入房间失败, 请重试")
             toast.show(this, 500, 300);
-            console.log("创建房间失败");
+            console.log("加入房间失败");
         }
     }
 }

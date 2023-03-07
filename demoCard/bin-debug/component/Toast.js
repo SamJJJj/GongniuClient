@@ -24,6 +24,7 @@ var Toast = (function (_super) {
         _this._text.textAlign = egret.HorizontalAlign.CENTER;
         _this._text.verticalAlign = egret.VerticalAlign.MIDDLE;
         _this._text.text = text;
+        console.log("Toast showed, text: ", text);
         _this.addChild(_this._text);
         return _this;
     }
@@ -32,6 +33,7 @@ var Toast = (function (_super) {
         this.x = x;
         this.y = y;
         parent.addChild(this);
+        console.log("Toast showed, text: ", x, " ", y);
         setTimeout(function () {
             _this.parent.removeChild(_this);
         }, 2000);

@@ -22,13 +22,15 @@ class LoginScene extends eui.Group {
         }
     }
 
+    private editor: eui.EditableText;
+
     protected createChildren(): void {
         super.createChildren()
-        let backgroud = this.createBitmapByName("bg_png");
+        let bg = this.createBitmapByName("bg_png");
         let stageW = this.stage.stageWidth;
         let stageH = this.stage.stageHeight;
-        backgroud.width = stageW;
-        backgroud.height = stageH;
+        bg.width = stageW;
+        bg.height = stageH;
 
         let button = this.createBitmapByName("login_png");
         button.width = 300;
@@ -36,15 +38,39 @@ class LoginScene extends eui.Group {
 
         button.anchorOffsetX = button.width / 2;
         button.x = stageW / 2;
-        button.y = 300;
+        button.y = 400;
         button.touchEnabled = true
         button.addEventListener("touchTap", this.login, this)
 
-        this.addChild(backgroud);
+        let background = new eui.Image();
+        background.source = RES.getRes("input_png");
+        background.width = 500;
+        background.height = 100;
+        background.top = 300;
+        background.left = stageW / 2 - 150;
+
+        this.editor = new eui.EditableText();
+        this.editor.maxChars = 12;
+        this.editor.textColor = 0x0099FF;
+        this.editor.width = 500;
+        this.editor.height = 100;
+        this.editor.prompt = "请输入昵称";
+        this.editor.top = background.top + 20;
+        this.editor.left = background.left + 20;
+
+        this.addChild(bg)
+        this.addChild(background)
+        this.addChild(this.editor);
         this.addChild(button);
     }
 
     private login() {
+        if (this.editor.text.length == 0) {
+            let toast = new Toast("昵称不能为空");
+            toast.show(this, 500, 200);
+            return
+        }
+        Global.Instance.userInfo.nickName = this.editor.text;
         let loginCmd = Router.cmd.Login
         console.log(Global.Instance.userInfo)
         let req = Router.genJsonRequest(loginCmd, {

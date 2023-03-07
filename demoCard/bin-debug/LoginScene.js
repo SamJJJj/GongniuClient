@@ -81,13 +81,34 @@ var LoginScene = (function (_super) {
         button.height = 100;
         button.anchorOffsetX = button.width / 2;
         button.x = stageW / 2;
-        button.y = 300;
+        button.y = 400;
         button.touchEnabled = true;
         button.addEventListener("touchTap", this.login, this);
+        var background = new eui.Image();
+        background.source = RES.getRes("input_png");
+        background.width = 500;
+        background.height = 100;
+        background.top = 300;
+        background.left = stageW / 2 - 250;
+        this.editor = new eui.EditableText();
+        this.editor.maxChars = 12;
+        this.editor.textColor = 0x0099FF;
+        this.editor.width = 500;
+        this.editor.height = 100;
+        this.editor.prompt = "请输入昵称";
+        this.editor.top = background.top + 20;
+        this.editor.left = background.left + 20;
         this.addChild(backgroud);
+        this.addChild(this.editor);
         this.addChild(button);
     };
     LoginScene.prototype.login = function () {
+        if (this.editor.text.length == 0) {
+            var toast = new Toast("昵称不能为空");
+            toast.show(this, 300, 200);
+            return;
+        }
+        Global.Instance.userInfo.nickName = this.editor.text;
         var loginCmd = Router.cmd.Login;
         console.log(Global.Instance.userInfo);
         var req = Router.genJsonRequest(loginCmd, {

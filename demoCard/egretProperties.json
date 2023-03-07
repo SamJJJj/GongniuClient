@@ -35,5 +35,11 @@
     "exmlRoot": [
       "resource/eui_skins"
     ]
+  },
+  "targets": {
+    "android": {
+      "appname": "dingniu",
+      "packagename": "com.dingniu"
+    }
   }
 }

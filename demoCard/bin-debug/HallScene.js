@@ -80,8 +80,8 @@ var HallScene = (function (_super) {
         this.addChild(backgroud);
         this.group = new eui.Group();
         this.group.percentWidth = 100;
-        this.group.percentHeight = 40;
-        this.group.bottom = 0;
+        this.group.percentHeight = 30;
+        this.group.bottom = 50;
         var createButton = new eui.Image();
         createButton.source = RES.getRes("create_game_png");
         var joinButton = new eui.Image();
@@ -221,6 +221,13 @@ var HallScene = (function (_super) {
             Global.Instance.roomInfo.currSeat = info.current_seat;
             Global.Instance.roomInfo.masterSeat = info.master_seat;
             Global.Instance.roomInfo.players = info.players;
+            for (var i = 0; i < Global.Instance.roomInfo.players.length; ++i) {
+                if (Global.Instance.roomInfo.players[i].seat == Global.Instance.roomInfo.currSeat) {
+                    continue;
+                }
+                Global.Instance.roomInfo.players[i].user_info.nick_name = decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name);
+                console.log("decoded: ", decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name));
+            }
             SceneManager.Instance.changeScene(game);
         }
         else {
