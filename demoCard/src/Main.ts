@@ -63,7 +63,6 @@ class Main extends eui.UILayer {
         await this.loadResource()
         // WebUtil.default().connect("ws://127.0.0.1:8090/ws")
         WebUtil.default().connect("ws://39.98.75.83:8090/ws")
-        // WebUtil.default().connect("ws://192.168.31.121/ws")
         WebUtil.default().setReceiveCallback(Router.globalCallback, Router)
         // await platform.login();
         platform.getUserProfile();

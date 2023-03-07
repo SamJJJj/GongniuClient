@@ -18,7 +18,11 @@ class DebugPlatform implements Platform {
         return { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6) }
     }
     getUserProfile() {
-        Global.Instance.userInfo = { nickName: "test" + this.randomString(3), userId: "123" + this.randomString(6), avatarUrl: "http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png" }
+        Global.Instance.userInfo = {
+            nickName: "test" + this.randomString(3),
+            userId: "123" + this.randomString(6),
+            avatarUrl: "http://rongcloud-web.qiniudn.com/docs_demo_rongcloud_logo.png"
+        }
     }
     async login() {
 

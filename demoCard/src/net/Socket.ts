@@ -30,7 +30,6 @@ class WebUtil {
 
     public connect(url: string): void {
         this.socket.connectByUrl(url);
-        this.start();
     }
 
     public setReceiveCallback(callback: Function, thisObject: any): void {
@@ -54,7 +53,7 @@ class WebUtil {
         //     WebUtil.default().send(hb);
         //     this.serverTimeout = setTimeout(function () {
         //         console.log("heat beat expired")
-        // this.socket.close();
+        //         this.socket.close();
         //     }, 360)
         // }, 180)
     }
@@ -77,6 +76,7 @@ class WebUtil {
         // 需要向外发送，只有open了才能发请求
         this.connected = true;
         console.log("connected")
+        this.start();
     }
 
     private onDisConnected(): void {

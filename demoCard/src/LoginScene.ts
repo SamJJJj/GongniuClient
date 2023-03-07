@@ -58,6 +58,12 @@ class LoginScene extends eui.Group {
         this.editor.top = background.top + 20;
         this.editor.left = background.left + 20;
 
+        if (egret.localStorage.getItem('nickName') != null) {
+            this.editor.visible = false;
+            background.visible = false;
+            console.log("storage getted");
+        }
+
         this.addChild(bg)
         this.addChild(background)
         this.addChild(this.editor);
@@ -65,12 +71,19 @@ class LoginScene extends eui.Group {
     }
 
     private login() {
-        if (this.editor.text.length == 0) {
+        let name = this.editor.text;
+        if (egret.localStorage.getItem('nickName') != null) {
+            name = egret.localStorage.getItem('nickName')
+        }
+        if (egret.localStorage.getItem('userId') != null) {
+            Global.Instance.userInfo.userId = egret.localStorage.getItem('userId')
+        }
+        if (name.length == 0) {
             let toast = new Toast("昵称不能为空");
             toast.show(this, 500, 200);
             return
         }
-        Global.Instance.userInfo.nickName = this.editor.text;
+        Global.Instance.userInfo.nickName = name;
         let loginCmd = Router.cmd.Login
         console.log(Global.Instance.userInfo)
         let req = Router.genJsonRequest(loginCmd, {
@@ -91,6 +104,9 @@ class LoginScene extends eui.Group {
             let hall = new HallScene();
             hall.width = this.stage.width
             hall.height = this.stage.height
+            egret.localStorage.setItem('nickName', Global.Instance.userInfo.nickName);
+            egret.localStorage.setItem('userId', Global.Instance.userInfo.userId);
+            console.log("storage setted: ", Global.Instance.userInfo.nickName, " ", Global.Instance.userInfo.userId)
             SceneManager.Instance.changeScene(hall)
         } else {
             let toast = new Toast("登录失败, 请重试")
