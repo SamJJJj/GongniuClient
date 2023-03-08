@@ -109,10 +109,14 @@ class LoginScene extends eui.Group {
             console.log("storage setted: ", Global.Instance.userInfo.nickName, " ", Global.Instance.userInfo.userId)
             SceneManager.Instance.changeScene(hall)
         } else {
-            let toast = new Toast("登录失败, 请重试")
-            toast.show(this, 500, 300);
+            if (this.editor.visible) {
+                let toast = new Toast("昵称已存在")
+                toast.show(this, 500, 300);
+            } else {
+                let toast = new Toast("登录失败, 请重试")
+                toast.show(this, 500, 300);
+            }
             console.log("登录失败")
-            // 展示错误信息，重试
         }
     }
 
