@@ -100,18 +100,18 @@ class HallScene extends eui.Group {
 
         this.joinGroup.addChild(this.editor);
 
-        let confirmButton = new eui.Image();
-        confirmButton.source = RES.getRes("confirm_png");
-        confirmButton.width = 100;
-        confirmButton.height = 60;
-        confirmButton.top = 100 + 50;
-
         let cancelButton = new eui.Image();
         cancelButton.source = RES.getRes("cancel_png");
         cancelButton.width = 100;
         cancelButton.height = 60;
-        cancelButton.top = confirmButton.top;
-        cancelButton.left = 200;
+        cancelButton.top = 100 + 50;
+
+        let confirmButton = new eui.Image();
+        confirmButton.source = RES.getRes("confirm_png");
+        confirmButton.width = 100;
+        confirmButton.height = 60;
+        confirmButton.top = cancelButton.top;
+        confirmButton.left = 200;
 
         confirmButton.addEventListener("touchTap", this.confirmJoinRoom, this);
         cancelButton.addEventListener("touchTap", this.cancelJoinRoom, this);
@@ -137,14 +137,14 @@ class HallScene extends eui.Group {
             // 获取roomId;
             // 切换到 room 场景
             Global.Instance.roomInfo.roomId = info.room_id;
-            Global.Instance.roomInfo.players.push({
+            Global.Instance.roomInfo.players = [{
                 user_info: {
                     nick_name: Global.Instance.userInfo.nickName,
                     avatar_url: "",
                 },
                 seat: 0,
                 is_ready: false
-            })
+            }]
             let game = new GameScene();
             game.width = this.stage.width;
             game.height = this.stage.height;

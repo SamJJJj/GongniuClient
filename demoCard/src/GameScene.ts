@@ -275,9 +275,9 @@ class GameScene extends eui.Group {
             Global.Instance.roomInfo.players = info.players;
             console.log("len: ", Global.Instance.roomInfo.players.length);
             for (let i = 0; i < Global.Instance.roomInfo.players.length; ++i) {
-                if (Global.Instance.roomInfo.players[i].seat == Global.Instance.roomInfo.currSeat) {
-                    continue;
-                }
+                // if (Global.Instance.roomInfo.players[i].seat == Global.Instance.roomInfo.currSeat) {
+                //     continue;
+                // }
                 Global.Instance.roomInfo.players[i].user_info.nick_name = decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name)
                 console.log("decoded: ", decodeURIComponent(Global.Instance.roomInfo.players[i].user_info.nick_name));
             }
@@ -343,7 +343,7 @@ class GameScene extends eui.Group {
             hall.width = this.stage.width;
             hall.height = this.stage.height;
             // 置空房间信息
-            // Global.Instance.roomInfo = null;
+            Global.Instance.roomInfo = { roomId: '', masterSeat: 0, currSeat: 0, players: [] };
             SceneManager.Instance.pushScene(hall);
         } else {
             let toast = new Toast("离开房间失败请重试！")
