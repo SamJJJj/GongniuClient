@@ -693,7 +693,7 @@ class GameScene extends eui.Group {
         let finish = new FinishBoard();
         finish.verticalCenter = 0;
         finish.horizontalCenter = 0;
-        finish.width = 600;
+        finish.width = 800;
         finish.height = 300;
         finish.closeHandler = () => {
             this.removeChild(finish);

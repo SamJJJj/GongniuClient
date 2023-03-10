@@ -5,7 +5,7 @@ class FinishBoard extends eui.Group {
         super.createChildren();
         let bg = new eui.Image();
         bg.source = RES.getRes("finish_back");
-        bg.width = 600;
+        bg.width = 800;
         bg.height = 300;
         bg.verticalCenter = 0;
         bg.horizontalCenter = 0;
